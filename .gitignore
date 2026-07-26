@@ -1,0 +1,11 @@
+node_modules
+dist
+.DS_Store
+*.local
+
+# real respondent content — never goes into git history
+src/data/people.local.js
+
+# env files, if/when Supabase is wired in
+.env
+.env.local
