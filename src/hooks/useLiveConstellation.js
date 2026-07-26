@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { resolveAngularOverlap } from "../lib/layout.js";
 
 // Drives both the hubs' gentle drift and their satellites' orbits from one shared clock,
 // since a satellite's position is relative to wherever its hub currently is.
@@ -41,28 +40,16 @@ export function useLiveConstellation(baseHubs, baseSatellites, paused) {
         return { ...h, x, y };
       });
 
-      // 2. compute each satellite's raw drifting angle (mod 2pi) grouped by hub
-      const byHub = new Map();
-      liveSatellitesRef.current.forEach((s) => {
-        const rawAngle = s.orbitParams.baseAngle + s.orbitParams.direction * s.orbitParams.speed * elapsed;
-        const angle = ((rawAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-        if (!byHub.has(s.hubId)) byHub.set(s.hubId, []);
-        byHub.get(s.hubId).push({ key: s.key, angle, orbit: s.orbitParams.orbit });
-      });
-
-      // 3. resolve angular overlap within each hub group
-      const resolvedAngleByKey = new Map();
-      byHub.forEach((entries) => {
-        const resolved = resolveAngularOverlap(entries);
-        resolved.forEach((e) => resolvedAngleByKey.set(e.key, e.angle));
-      });
-
-      // 4. convert back to xy, anchored to the hub's CURRENT (drifted) position this frame
+      // 2. each satellite wobbles gently around its own fixed slot (see satelliteOrbitParams),
+      // anchored to the hub's CURRENT (drifted) position this frame — never sweeps the full
+      // circle, so it can't drift back up into the excluded label wedge
       liveSatellitesRef.current = liveSatellitesRef.current.map((s) => {
-        const angle = resolvedAngleByKey.get(s.key);
+        const p = s.orbitParams;
+        const wobble = p.wobbleAmplitude * Math.sin(p.phase + p.direction * p.speed * elapsed);
+        const angle = p.centerAngle + wobble;
         const hubPos = hubPosById.get(s.hubId);
-        const x = hubPos.x + s.orbitParams.orbit * Math.cos(angle);
-        const y = hubPos.y + s.orbitParams.orbit * Math.sin(angle);
+        const x = hubPos.x + p.orbit * Math.cos(angle);
+        const y = hubPos.y + p.orbit * Math.sin(angle);
         return { ...s, x, y, hub: { ...s.hub, x: hubPos.x, y: hubPos.y } };
       });
 

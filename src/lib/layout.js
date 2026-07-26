@@ -33,18 +33,36 @@ export function nearestNeighborDistances(positions) {
   });
 }
 
+// The hub label sits above the shape (straight up, angle -90°). Keep satellites out of a
+// wedge centered there so they never sit behind/through the label text.
+const LABEL_ANGLE = -Math.PI / 2;
+const LABEL_EXCLUDE_HALF_WIDTH = 0.87; // ~50°, so the excluded wedge spans ~100° total
+
 export function satelliteOrbitParams(hub, i, total, maxOrbit = Infinity) {
   const naturalOrbit = 58 + Math.min(total, 7) * 3.2;
   // cap well inside the gap to the nearest hub, so satellites stay clearly grouped
   // with their own hub even when two hubs sit close together
   const orbit = Math.min(naturalOrbit, maxOrbit * 0.35);
-  const angleOffset = (hub.x * 0.013 + hub.y * 0.021) % (Math.PI * 2);
-  const baseAngle = (2 * Math.PI * i) / Math.max(total, 1) + angleOffset;
-  // vary speed/direction per satellite so they don't move in lockstep
+
+  const n = Math.max(total, 1);
+  const allowedStart = LABEL_ANGLE + LABEL_EXCLUDE_HALF_WIDTH;
+  const allowedSweep = 2 * Math.PI - 2 * LABEL_EXCLUDE_HALF_WIDTH;
+  const spacing = allowedSweep / n;
+  // each satellite gets its own fixed slot spread across the allowed arc, then wobbles
+  // gently in place — never sweeping the full circle, so it can never drift back up
+  // into the excluded wedge no matter how long it runs
+  const centerAngle = allowedStart + spacing * (i + 0.5);
+  const wobbleAmplitude = Math.min(0.28, spacing * 0.4);
+
+  // vary phase/speed/direction per satellite so they don't wobble in lockstep.
+  // wobbling within a small arc (instead of sweeping the full circle like before) means the
+  // same angular speed now covers far less visual distance per second, so it's boosted here
+  // to land back at roughly the pace satellites moved at before this wobble model.
+  const phase = (hub.x * 0.013 + hub.y * 0.021) % (Math.PI * 2);
   const seed = (hub.x * 7 + hub.y * 13 + i * 29) % 97;
   const direction = seed % 2 === 0 ? 1 : -1;
-  const speed = 0.045 + (seed % 11) * 0.006; // radians per second, slow drift
-  return { orbit, baseAngle, direction, speed };
+  const speed = (0.045 + (seed % 11) * 0.006) * 4;
+  return { orbit, centerAngle, wobbleAmplitude, phase, direction, speed };
 }
 
 // small, slow circular wobble around a hub's base position — same math shape as satellite
@@ -59,6 +77,7 @@ export function hubDriftParams(hub) {
   return { orbit, baseAngle, direction, speed };
 }
 
+// hub drift: a plain circular orbit around the hub's own base position
 export function positionAtTime(hub, params, elapsedSeconds) {
   const angle = params.baseAngle + params.direction * params.speed * elapsedSeconds;
   return {
@@ -67,28 +86,13 @@ export function positionAtTime(hub, params, elapsedSeconds) {
   };
 }
 
-export const MIN_ANGLE_SEP = 0.34; // radians, ~19.5deg minimum gap between two satellites on the same hub
-
-export function resolveAngularOverlap(entries) {
-  // entries: [{ key, angle, orbit }], for satellites sharing one hub
-  // sort by angle, then push apart any pair closer than MIN_ANGLE_SEP, wrapping around the circle
-  const sorted = [...entries].sort((a, b) => a.angle - b.angle);
-  const n = sorted.length;
-  if (n < 2) return sorted;
-
-  // a few relaxation passes is enough for these small counts (<=7) to settle
-  for (let pass = 0; pass < 4; pass++) {
-    for (let i = 0; i < n; i++) {
-      const a = sorted[i];
-      const b = sorted[(i + 1) % n];
-      let gap = b.angle - a.angle;
-      if (i === n - 1) gap += 2 * Math.PI; // wrap-around gap
-      if (gap < MIN_ANGLE_SEP) {
-        const push = (MIN_ANGLE_SEP - gap) / 2;
-        a.angle -= push;
-        b.angle += push;
-      }
-    }
-  }
-  return sorted;
+// satellite position: a fixed slot within the allowed arc (see satelliteOrbitParams),
+// wobbling gently in place rather than sweeping the full circle
+export function satellitePositionAtTime(hub, params, elapsedSeconds) {
+  const wobble = params.wobbleAmplitude * Math.sin(params.phase + params.direction * params.speed * elapsedSeconds);
+  const angle = params.centerAngle + wobble;
+  return {
+    x: hub.x + params.orbit * Math.cos(angle),
+    y: hub.y + params.orbit * Math.sin(angle),
+  };
 }

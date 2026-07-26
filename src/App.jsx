@@ -4,7 +4,7 @@ import { useLiveConstellation } from "./hooks/useLiveConstellation.js";
 import { useCamera } from "./hooks/useCamera.js";
 import { usePanZoom } from "./hooks/usePanZoom.js";
 import { QUESTIONS } from "./data/questions.js";
-import { DEFAULT_CAMERA, boxFor, clampCameraBox } from "./lib/camera.js";
+import { DEFAULT_CAMERA, boxFor, clampCameraBox, computeMinimalCoverCamera } from "./lib/camera.js";
 import { Graph } from "./components/Graph.jsx";
 import { Legend } from "./components/Legend.jsx";
 import { ResponsePanel } from "./components/ResponsePanel.jsx";
@@ -17,6 +17,8 @@ export default function App() {
   const { camera, transitioning, flyTo, flyVia, reset, cancelFlight, setCameraDirect, cameraRef } = useCamera();
 
   const svgRef = useRef(null);
+  const frameRef = useRef(null);
+  const defaultCameraRef = useRef(DEFAULT_CAMERA);
   usePanZoom(svgRef, camera, cameraRef, setCameraDirect, cancelFlight);
 
   const [activeKey, setActiveKey] = useState(null);
@@ -36,10 +38,29 @@ export default function App() {
 
   const activeSat = satellites.find((s) => s.key === activeKey);
 
+  // keep the resting view's shape matched to the actual frame, growing only whichever
+  // dimension the frame's ratio requires so the constellation fills it with no leftover
+  // white space on either axis, while never cropping any hub or satellite
+  useEffect(() => {
+    const el = frameRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect;
+      if (width === 0 || height === 0) return;
+      const fitBox = computeMinimalCoverCamera(width / height);
+      defaultCameraRef.current = fitBox;
+      const atRest = !activeKey && !focusedHubId && !transitioning;
+      if (atRest) setCameraDirect(fitBox);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [activeKey, focusedHubId, transitioning, setCameraDirect]);
+
+  const restBox = defaultCameraRef.current;
   const cameraIsMoved =
-    Math.abs(camera.w - DEFAULT_CAMERA.w) > 4 ||
-    Math.abs(camera.x - DEFAULT_CAMERA.x) > 4 ||
-    Math.abs(camera.y - DEFAULT_CAMERA.y) > 4;
+    Math.abs(camera.w - restBox.w) > 4 ||
+    Math.abs(camera.x - restBox.x) > 4 ||
+    Math.abs(camera.y - restBox.y) > 4;
 
   const handleHubClick = (hub) => {
     setActiveKey(null);
@@ -50,11 +71,15 @@ export default function App() {
   const handleSatelliteClick = (sat) => {
     setFocusedHubId(sat.hubId);
     setActiveKey(sat.key);
+    // clear any lingering hover from the click gesture itself, so the Legend doesn't
+    // keep showing this origin person highlighted once you move on to hover someone else
+    setHoveredPersonId(null);
     flyTo(boxFor(sat.x, sat.y, NODE_ZOOM_SIZE), { duration: 900 });
   };
 
   const handleClosePanel = () => {
     setActiveKey(null);
+    setHoveredPersonId(null);
   };
 
   const handleLegendClick = (personId) => {
@@ -130,7 +155,7 @@ export default function App() {
   const handleBackgroundClick = () => {
     setActiveKey(null);
     setFocusedHubId(null);
-    reset();
+    reset(defaultCameraRef.current);
   };
 
   // manual zoom in/out, scaling around the camera's own current center so it never
@@ -163,7 +188,7 @@ export default function App() {
       </div>
 
       <div className="graph-wrap">
-        <div className="graph-frame" onClick={handleBackgroundClick}>
+        <div className="graph-frame" ref={frameRef} onClick={handleBackgroundClick}>
           <Graph
             satellites={satellites}
             hubs={hubs}
@@ -186,7 +211,7 @@ export default function App() {
             <button className="zoom-btn" onClick={() => zoomBy(1.25)} aria-label="Zoom out">−</button>
           </div>
         </div>
-        <Legend pinnedPersonId={pinnedPersonId} onPersonClick={handleLegendClick} />
+        <Legend pinnedPersonId={pinnedPersonId} hoveredPersonId={hoveredPersonId} onPersonClick={handleLegendClick} />
       </div>
 
       <ResponsePanel
