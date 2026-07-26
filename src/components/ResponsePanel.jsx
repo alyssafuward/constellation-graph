@@ -16,6 +16,7 @@ export function ResponsePanel({ satellite, onClose, onStayInTopic, onFollowStory
         </header>
 
         <p className="sheet-qlabel">{hub.label}</p>
+        <p className="sheet-question">{hub.question}</p>
 
         <div className="sheet-body">
           {paras.map((p, i) => <p key={i}>{p}</p>)}

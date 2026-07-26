@@ -3,6 +3,23 @@ import { ALL_PEOPLE } from "../data/people.js";
 import { easeInOutCubic } from "../lib/camera.js";
 import { HubShape } from "./HubShape.jsx";
 
+function wrapLines(text, maxCharsPerLine) {
+  const words = text.split(" ");
+  const lines = [];
+  let current = "";
+  words.forEach((word) => {
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length > maxCharsPerLine && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = candidate;
+    }
+  });
+  if (current) lines.push(current);
+  return lines;
+}
+
 export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, onSatelliteClick, hoveredPersonId, setHoveredPersonId, camera, transitioning, travelingPersonId, beadSegment, beadT, svgRef, pinnedPersonId }) {
   const threadFor = (personId) => {
     const qOrder = QUESTIONS.map((q) => q.id);
@@ -33,12 +50,12 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
         );
       })}
 
-      {/* dotted spokes from hub to its satellites — always faint, questions are the loose structure */}
+      {/* dotted spokes from hub to its satellites — questions are the loose structure */}
       {satellites.map((s) => (
         <line
           key={`spoke-${s.key}`}
           x1={s.hub.x} y1={s.hub.y} x2={s.x} y2={s.y}
-          stroke="#C9DEEE" strokeWidth={1.1} strokeDasharray="1.5 4.5"
+          stroke="#7FAAC9" strokeWidth={1.7} strokeDasharray="1.5 4.5"
         />
       ))}
 
@@ -80,10 +97,17 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
             {isBeacon && !dim && (
               <circle className="hub-beacon-ring" cx={0} cy={0} r={26} fill="none" stroke="#F0B85A" strokeWidth="2.5" />
             )}
-            <HubShape shape={hub.shape} size={46} fill="#1F6FA8" stroke="#0F4C77" dim={dim} />
+            <HubShape shape={hub.shape} size={46} fill={hub.color || "#1F6FA8"} stroke="#0F4C77" dim={dim} />
             <text y={-36} textAnchor="middle" className="hub-label" opacity={dim ? 0.35 : 1}>
               {hub.label}
             </text>
+            {focusedHubId === hub.id && (
+              <text y={44} textAnchor="middle" className="hub-question">
+                {wrapLines(hub.question, 42).map((line, i) => (
+                  <tspan key={i} x={0} dy={i === 0 ? 0 : 13}>{line}</tspan>
+                ))}
+              </text>
+            )}
           </g>
         );
       })}

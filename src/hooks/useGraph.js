@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { QUESTIONS } from "../data/questions.js";
 import { AUTHORS } from "../data/people.js";
-import { HUB_POSITIONS, SHAPES, satelliteOrbitParams, satellitePositionAtTime, hubDriftParams, nearestNeighborDistances } from "../lib/layout.js";
+import { HUB_POSITIONS, satelliteOrbitParams, satellitePositionAtTime, hubDriftParams, nearestNeighborDistances } from "../lib/layout.js";
 
 export function useGraph() {
   return useMemo(() => {
@@ -9,7 +9,6 @@ export function useGraph() {
 
     const hubs = QUESTIONS.map((q, i) => ({
       ...q,
-      shape: SHAPES[i % SHAPES.length],
       x: HUB_POSITIONS[i].x,
       y: HUB_POSITIONS[i].y,
       driftParams: hubDriftParams(HUB_POSITIONS[i]),

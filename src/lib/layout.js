@@ -17,8 +17,6 @@ export const HUB_POSITIONS = [
   { x: 1000, y: 540 },
 ];
 
-export const SHAPES = ["circle", "square", "triangle", "diamond", "pentagon", "hexagon", "star", "cross", "cloud", "heart"];
-
 // distance from each hub to its single nearest neighboring hub, used to keep satellite
 // orbits from creeping into a neighboring hub's territory when hubs are packed close together
 export function nearestNeighborDistances(positions) {
