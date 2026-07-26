@@ -134,13 +134,6 @@ html, body, #root {
   transition: opacity 0.3s ease;
 }
 
-.hub-question {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 10px;
-  font-style: italic;
-  fill: #55606B;
-}
-
 .hub { cursor: pointer; }
 
 .hub-beacon-ring {

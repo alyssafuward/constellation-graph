@@ -3,23 +3,6 @@ import { ALL_PEOPLE } from "../data/people.js";
 import { easeInOutCubic } from "../lib/camera.js";
 import { HubShape } from "./HubShape.jsx";
 
-function wrapLines(text, maxCharsPerLine) {
-  const words = text.split(" ");
-  const lines = [];
-  let current = "";
-  words.forEach((word) => {
-    const candidate = current ? `${current} ${word}` : word;
-    if (candidate.length > maxCharsPerLine && current) {
-      lines.push(current);
-      current = word;
-    } else {
-      current = candidate;
-    }
-  });
-  if (current) lines.push(current);
-  return lines;
-}
-
 export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, onSatelliteClick, hoveredPersonId, setHoveredPersonId, camera, transitioning, travelingPersonId, beadSegment, beadT, svgRef, pinnedPersonId }) {
   const threadFor = (personId) => {
     const qOrder = QUESTIONS.map((q) => q.id);
@@ -101,13 +84,6 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
             <text y={-36} textAnchor="middle" className="hub-label" opacity={dim ? 0.35 : 1}>
               {hub.label}
             </text>
-            {focusedHubId === hub.id && (
-              <text y={44} textAnchor="middle" className="hub-question">
-                {wrapLines(hub.question, 42).map((line, i) => (
-                  <tspan key={i} x={0} dy={i === 0 ? 0 : 13}>{line}</tspan>
-                ))}
-              </text>
-            )}
           </g>
         );
       })}
