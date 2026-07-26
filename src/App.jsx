@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useGraph } from "./hooks/useGraph.js";
-import { useOrbitingSatellites } from "./hooks/useOrbitingSatellites.js";
+import { useLiveConstellation } from "./hooks/useLiveConstellation.js";
 import { useCamera } from "./hooks/useCamera.js";
 import { usePanZoom } from "./hooks/usePanZoom.js";
 import { QUESTIONS } from "./data/questions.js";
@@ -13,7 +13,7 @@ const HUB_ZOOM_SIZE = 400;
 const NODE_ZOOM_SIZE = 160;
 
 export default function App() {
-  const { hubs, satellites: baseSatellites } = useGraph();
+  const { hubs: baseHubs, satellites: baseSatellites } = useGraph();
   const { camera, transitioning, flyTo, flyVia, reset, cancelFlight, setCameraDirect, cameraRef } = useCamera();
 
   const svgRef = useRef(null);
@@ -30,9 +30,9 @@ export default function App() {
 
   useEffect(() => () => cancelAnimationFrame(beadRafRef.current), []);
 
-  // pause orbit drift while a response is open or the camera is flying, so targets don't move underneath the user
+  // pause hub/orbit drift while a response is open or the camera is flying, so targets don't move underneath the user
   const orbitPaused = Boolean(activeKey) || transitioning;
-  const satellites = useOrbitingSatellites(baseSatellites, orbitPaused);
+  const { hubs, satellites } = useLiveConstellation(baseHubs, baseSatellites, orbitPaused);
 
   const activeSat = satellites.find((s) => s.key === activeKey);
 
