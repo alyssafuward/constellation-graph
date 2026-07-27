@@ -2,6 +2,7 @@ import { QUESTIONS } from "../data/questions.js";
 import { ALL_PEOPLE } from "../data/people.js";
 import { easeInOutCubic } from "../lib/camera.js";
 import { HubShape } from "./HubShape.jsx";
+import { dotShapeFor } from "../lib/dotShapes.js";
 
 export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, onSatelliteClick, hoveredPersonId, setHoveredPersonId, camera, transitioning, travelingPersonId, beadSegment, beadT, svgRef, pinnedPersonId }) {
   const threadFor = (personId) => {
@@ -33,12 +34,12 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
         );
       })}
 
-      {/* dotted spokes from hub to its satellites — always faint, questions are the loose structure */}
+      {/* dotted spokes from hub to its satellites — questions are the loose structure */}
       {satellites.map((s) => (
         <line
           key={`spoke-${s.key}`}
           x1={s.hub.x} y1={s.hub.y} x2={s.x} y2={s.y}
-          stroke="#C9DEEE" strokeWidth={1.1} strokeDasharray="1.5 4.5"
+          stroke="#7FAAC9" strokeWidth={1.7} strokeDasharray="1.5 4.5"
         />
       ))}
 
@@ -78,12 +79,9 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
             onClick={(e) => { e.stopPropagation(); onHubClick(hub); }}
           >
             {isBeacon && !dim && (
-              <circle className="hub-beacon-ring" cx={0} cy={0} r={26} fill="none" stroke="#F0B85A" strokeWidth="2.5" />
+              <circle className="hub-beacon-ring" cx={0} cy={0} r={68} fill="none" stroke="#F0B85A" strokeWidth="2.5" />
             )}
-            <HubShape shape={hub.shape} size={46} fill="#1F6FA8" stroke="#0F4C77" dim={dim} />
-            <text y={-36} textAnchor="middle" className="hub-label" opacity={dim ? 0.35 : 1}>
-              {hub.label}
-            </text>
+            <HubShape shape={hub.shape} size={130} dim={dim} />
           </g>
         );
       })}
@@ -92,6 +90,8 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
       {satellites.map((s) => {
         const isActive = s.key === activeKey;
         const isThreaded = selectedPersonId === s.personId;
+        const r = isActive ? 24 : isThreaded ? 20 : 16;
+        const scale = r / 10;
         return (
           <g
             key={s.key}
@@ -101,11 +101,12 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
             onMouseLeave={() => setHoveredPersonId(null)}
             onClick={(e) => { e.stopPropagation(); onSatelliteClick(s); }}
           >
-            <circle
-              r={isActive ? 12 : isThreaded ? 10 : 8}
+            <path
+              d={dotShapeFor(s.key)}
+              transform={`scale(${scale})`}
               fill={s.person.color}
               stroke="#fff"
-              strokeWidth={isActive ? 3 : 1.5}
+              strokeWidth={(isActive ? 3 : 1.5) / scale}
             />
           </g>
         );

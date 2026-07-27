@@ -1,5 +1,11 @@
 * { box-sizing: border-box; }
 
+.sheet-body a, .list-answer a, .intro-copy a {
+  color: #1F6FA8;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 html, body, #root {
   height: 100%;
   margin: 0;
@@ -15,6 +21,80 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+.landing-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  cursor: pointer;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.7s ease, transform 0.7s ease;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.landing-overlay.is-exiting {
+  opacity: 0;
+  transform: scale(1.15);
+  pointer-events: none;
+}
+
+.landing-frame {
+  position: relative;
+  /* locked to the artwork's 2400x1500 aspect ratio, so it's the largest box of that
+     shape that still fits the viewport — matching what object-fit: contain would show */
+  width: min(100vw, 100vh * 1.6);
+  height: min(100vh, 100vw / 1.6);
+}
+
+.landing-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.landing-hint {
+  position: absolute;
+  /* anchored to the grass just under the orange character in the artwork itself */
+  left: 50%;
+  top: 95%;
+  transform: translate(-50%, -50%);
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  animation: landing-hint-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes landing-hint-pulse {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
+
+.landing-return-btn {
+  position: fixed;
+  top: 14px;
+  left: 16px;
+  z-index: 20;
+  background: #FFFFFF;
+  border: 1px solid #C8DEF0;
+  color: #1F6FA8;
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
 }
 
 .header-bar {
@@ -45,11 +125,108 @@ html, body, #root {
 
 .intro-copy {
   margin: 0 auto;
+  color: #3D4A54;
+  font-size: 15.5px;
+  max-width: 560px;
+  line-height: 1.55;
+}
+
+.intro-instructions {
+  margin: 6px auto 0;
+  padding-top: 10px;
+  border-top: 1px solid #D8ECF8;
   color: #55606B;
   font-size: 13px;
+  font-style: italic;
   max-width: 480px;
-  line-height: 1.35;
+  line-height: 1.5;
 }
+
+.list-view-link {
+  font-size: 12.5px;
+  color: #1F6FA8;
+  font-weight: 600;
+  text-decoration: none;
+}
+.list-view-link:hover { text-decoration: underline; }
+
+/* the graph app fixes height to the viewport since the graph is a fixed-size canvas;
+   the list view is normal scrolling content, so it needs to opt back out of that */
+.list-view {
+  height: auto;
+  min-height: 100vh;
+  overflow: visible;
+}
+
+.list-wrap {
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: 60px;
+}
+
+.list-question {
+  background: #FFFFFF;
+  border: 1px solid #D8ECF8;
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-bottom: 16px;
+}
+
+.list-question h2 {
+  font-family: 'DM Serif Display', serif;
+  font-weight: 400;
+  font-size: 19px;
+  margin: 0 0 4px;
+}
+
+.list-question-text {
+  font-size: 13px;
+  color: #55606B;
+  margin: 0 0 14px;
+  line-height: 1.4;
+}
+
+.list-respondents {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.list-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  border-top: 1px solid #EFF6FB;
+  padding: 10px 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+  cursor: pointer;
+  text-align: left;
+}
+.list-respondents li:first-child .list-toggle { border-top: none; }
+
+.list-caret {
+  margin-left: auto;
+  color: #55606B;
+  font-weight: 400;
+}
+
+.list-answer {
+  padding: 0 4px 14px 4px;
+}
+.list-answer p {
+  margin: 0 0 10px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #333;
+}
+.list-answer p:last-child { margin-bottom: 0; }
 
 .reset-btn {
   background: #FFFFFF;
@@ -178,7 +355,7 @@ html, body, #root {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: #7C8894;
+  color: #55606B;
   margin-right: 6px;
 }
 
@@ -217,6 +394,24 @@ html, body, #root {
 @media (max-width: 720px) {
   .legend { padding: 12px 14px; gap: 2px 4px; }
   .legend-row { padding: 5px 8px; font-size: 12px; }
+}
+
+.hub-coords {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  fill: #55606B;
+}
+
+.editor-code {
+  font-size: 11px;
+  background: #F2F8FD;
+  border: 1px solid #D8ECF8;
+  border-radius: 14px;
+  padding: 14px 18px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 160px;
+  overflow-y: auto;
 }
 
 .overlay {
@@ -288,14 +483,21 @@ html, body, #root {
 .sheet-handle {
   margin: 2px 0 0;
   font-size: 13px;
-  color: #7C8894;
+  color: #55606B;
 }
 
 .sheet-qlabel {
   font-family: 'DM Serif Display', serif;
   font-size: 16px;
   color: #1F6FA8;
-  margin: 16px 0 14px;
+  margin: 16px 0 4px;
+}
+
+.sheet-question {
+  font-size: 13px;
+  color: #55606B;
+  margin: 0 0 14px;
+  line-height: 1.4;
 }
 
 .sheet-body p {

@@ -1,8 +1,7 @@
 import { VIEW_W, VIEW_H } from "./layout.js";
 
-// Crop tightly to where the hubs actually are (x:150-1300, y:165-540) plus margin for
-// their orbiting satellites (max orbit radius ~80 units), rather than showing the whole
-// nominal canvas — this keeps the constellation filling the frame instead of looking small.
+// Just an initial guess used before the first real frame measurement comes in from
+// useGraph's stretched safeBox (App.jsx snaps the camera to that immediately on mount).
 export const DEFAULT_CAMERA = { x: 40, y: 55, w: 1370, h: 595 };
 
 export function boxFor(cx, cy, size) {

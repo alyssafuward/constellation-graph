@@ -1,3 +1,5 @@
+import { renderLinkedText } from "../lib/text.jsx";
+
 export function ResponsePanel({ satellite, onClose, onStayInTopic, onFollowStory }) {
   if (!satellite) return null;
   const { person, hub } = satellite;
@@ -16,9 +18,10 @@ export function ResponsePanel({ satellite, onClose, onStayInTopic, onFollowStory
         </header>
 
         <p className="sheet-qlabel">{hub.label}</p>
+        {hub.question && <p className="sheet-question">{hub.question}</p>}
 
         <div className="sheet-body">
-          {paras.map((p, i) => <p key={i}>{p}</p>)}
+          {paras.map((p, i) => <p key={i}>{renderLinkedText(p)}</p>)}
         </div>
 
         <div className="nav-row">
@@ -26,7 +29,7 @@ export function ResponsePanel({ satellite, onClose, onStayInTopic, onFollowStory
             Stay in topic → next answer
           </button>
           <button className="nav-btn story-btn" style={{ background: person.color }} onClick={onFollowStory}>
-            Follow {person.name.split(" ")[0]}'s story →
+            Follow {person.name.split(" ")[0]}'s response →
           </button>
         </div>
       </div>

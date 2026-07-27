@@ -8,6 +8,9 @@ export function usePanZoom(svgElRef, camera, cameraRef, setCameraDirect, cancelF
   const dragDistanceRef = useRef(0); // accumulated drag distance since pointerdown, in client px
   const suppressClickRef = useRef(false);
   const capturedPointers = useRef(new Set()); // pointerIds we've called setPointerCapture on
+  // true from the moment a pointer touches the svg until all pointers lift — lets callers
+  // (e.g. an effect that resnaps the camera on resize) know not to touch the camera right now
+  const isInteractingRef = useRef(false);
 
   const clientToViewBoxScale = useCallback(() => {
     const el = svgElRef.current;
@@ -28,6 +31,7 @@ export function usePanZoom(svgElRef, camera, cameraRef, setCameraDirect, cancelF
     const onPointerDown = (e) => {
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
       dragDistanceRef.current = 0;
+      isInteractingRef.current = true;
 
       if (pointers.current.size === 1) {
         dragState.current = { lastClientX: e.clientX, lastClientY: e.clientY };
@@ -107,6 +111,7 @@ export function usePanZoom(svgElRef, camera, cameraRef, setCameraDirect, cancelF
       if (pointers.current.size < 2) pinchState.current = null;
       if (pointers.current.size === 0) {
         dragState.current = null;
+        isInteractingRef.current = false;
         // if the pointer moved more than a small threshold, treat it as a drag and swallow the
         // synthetic click that follows, so panning doesn't accidentally open a hub/node
         if (dragDistanceRef.current > 6) {
@@ -145,4 +150,6 @@ export function usePanZoom(svgElRef, camera, cameraRef, setCameraDirect, cancelF
       el.removeEventListener("click", onClickCapture, true);
     };
   }, [svgElRef, cameraRef, setCameraDirect, cancelFlight, clientToViewBoxScale]);
+
+  return isInteractingRef;
 }
