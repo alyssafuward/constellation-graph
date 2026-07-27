@@ -2,6 +2,8 @@ import { QUESTIONS } from "../data/questions.js";
 import { ALL_PEOPLE } from "../data/people.js";
 import { easeInOutCubic } from "../lib/camera.js";
 import { HubShape } from "./HubShape.jsx";
+import { HubLabel } from "./HubLabel.jsx";
+import { dotShapeFor } from "../lib/dotShapes.js";
 
 export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, onSatelliteClick, hoveredPersonId, setHoveredPersonId, camera, transitioning, travelingPersonId, beadSegment, beadT, svgRef, pinnedPersonId }) {
   const threadFor = (personId) => {
@@ -78,12 +80,10 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
             onClick={(e) => { e.stopPropagation(); onHubClick(hub); }}
           >
             {isBeacon && !dim && (
-              <circle className="hub-beacon-ring" cx={0} cy={0} r={26} fill="none" stroke="#F0B85A" strokeWidth="2.5" />
+              <circle className="hub-beacon-ring" cx={0} cy={0} r={136} fill="none" stroke="#F0B85A" strokeWidth="2.5" />
             )}
-            <HubShape shape={hub.shape} size={46} fill={hub.color || "#1F6FA8"} stroke="#0F4C77" dim={dim} />
-            <text y={-36} textAnchor="middle" className="hub-label" opacity={dim ? 0.35 : 1}>
-              {hub.label}
-            </text>
+            <HubShape shape={hub.shape} size={260} fill={hub.color || "#1F6FA8"} stroke="#0F4C77" dim={dim} />
+            <HubLabel hubId={hub.id} label={hub.label} y={-150} opacity={dim ? 0.35 : 1} />
           </g>
         );
       })}
@@ -92,6 +92,8 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
       {satellites.map((s) => {
         const isActive = s.key === activeKey;
         const isThreaded = selectedPersonId === s.personId;
+        const r = isActive ? 24 : isThreaded ? 20 : 16;
+        const scale = r / 10;
         return (
           <g
             key={s.key}
@@ -101,11 +103,12 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
             onMouseLeave={() => setHoveredPersonId(null)}
             onClick={(e) => { e.stopPropagation(); onSatelliteClick(s); }}
           >
-            <circle
-              r={isActive ? 12 : isThreaded ? 10 : 8}
+            <path
+              d={dotShapeFor(s.key)}
+              transform={`scale(${scale})`}
               fill={s.person.color}
               stroke="#fff"
-              strokeWidth={isActive ? 3 : 1.5}
+              strokeWidth={(isActive ? 3 : 1.5) / scale}
             />
           </g>
         );

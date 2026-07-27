@@ -4,7 +4,7 @@ import { useLiveConstellation } from "./hooks/useLiveConstellation.js";
 import { useCamera } from "./hooks/useCamera.js";
 import { usePanZoom } from "./hooks/usePanZoom.js";
 import { QUESTIONS } from "./data/questions.js";
-import { DEFAULT_CAMERA, boxFor, clampCameraBox, computeMinimalCoverCamera } from "./lib/camera.js";
+import { boxFor, clampCameraBox } from "./lib/camera.js";
 import { Graph } from "./components/Graph.jsx";
 import { Legend } from "./components/Legend.jsx";
 import { ResponsePanel } from "./components/ResponsePanel.jsx";
@@ -13,13 +13,16 @@ const HUB_ZOOM_SIZE = 400;
 const NODE_ZOOM_SIZE = 160;
 
 export default function App() {
-  const { hubs: baseHubs, satellites: baseSatellites } = useGraph();
+  // how the design-space hub layout gets stretched to match the actual frame's shape —
+  // updated live by the ResizeObserver below. Initial guess matches HUB_POSITIONS' own
+  // rough ratio so there's no visible jump once the real measurement comes in.
+  const [containerRatio, setContainerRatio] = useState(1.78);
+  const { hubs: baseHubs, satellites: baseSatellites, safeBox } = useGraph(containerRatio);
   const { camera, transitioning, flyTo, flyVia, reset, cancelFlight, setCameraDirect, cameraRef } = useCamera();
 
   const svgRef = useRef(null);
   const frameRef = useRef(null);
-  const defaultCameraRef = useRef(DEFAULT_CAMERA);
-  usePanZoom(svgRef, camera, cameraRef, setCameraDirect, cancelFlight);
+  const isInteractingRef = usePanZoom(svgRef, camera, cameraRef, setCameraDirect, cancelFlight);
 
   const [activeKey, setActiveKey] = useState(null);
   const [focusedHubId, setFocusedHubId] = useState(null);
@@ -38,29 +41,33 @@ export default function App() {
 
   const activeSat = satellites.find((s) => s.key === activeKey);
 
-  // keep the resting view's shape matched to the actual frame, growing only whichever
-  // dimension the frame's ratio requires so the constellation fills it with no leftover
-  // white space on either axis, while never cropping any hub or satellite
+  // measure the actual frame and feed its aspect ratio into the layout itself (useGraph
+  // stretches HUB_POSITIONS to match), rather than just cropping the camera to fit
   useEffect(() => {
     const el = frameRef.current;
     if (!el) return;
     const observer = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect;
       if (width === 0 || height === 0) return;
-      const fitBox = computeMinimalCoverCamera(width / height);
-      defaultCameraRef.current = fitBox;
-      const atRest = !activeKey && !focusedHubId && !transitioning;
-      if (atRest) setCameraDirect(fitBox);
+      setContainerRatio(width / height);
     });
     observer.observe(el);
     return () => observer.disconnect();
-  }, [activeKey, focusedHubId, transitioning, setCameraDirect]);
+  }, []);
 
-  const restBox = defaultCameraRef.current;
+  // once the layout re-stretches to match a new ratio, snap the resting camera to match
+  // too — but only while at rest, never mid-zoom/mid-flight, and never while the user has
+  // an active pointer down (manually panning/pinching), so it can't fight a live drag
+  useEffect(() => {
+    const atRest = !activeKey && !focusedHubId && !transitioning && !isInteractingRef.current;
+    if (atRest) setCameraDirect(safeBox);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [safeBox]);
+
   const cameraIsMoved =
-    Math.abs(camera.w - restBox.w) > 4 ||
-    Math.abs(camera.x - restBox.x) > 4 ||
-    Math.abs(camera.y - restBox.y) > 4;
+    Math.abs(camera.w - safeBox.w) > 4 ||
+    Math.abs(camera.x - safeBox.x) > 4 ||
+    Math.abs(camera.y - safeBox.y) > 4;
 
   const handleHubClick = (hub) => {
     setActiveKey(null);
@@ -155,7 +162,7 @@ export default function App() {
   const handleBackgroundClick = () => {
     setActiveKey(null);
     setFocusedHubId(null);
-    reset(defaultCameraRef.current);
+    reset(safeBox);
   };
 
   // manual zoom in/out, scaling around the camera's own current center so it never
@@ -173,13 +180,18 @@ export default function App() {
     <div className="app-root">
       <div className="header-bar">
         <span className="eyebrow">HOW WE HUMAN IN THE FACE OF AI DETECTION</span>
-        <h1>A constellation of voices.</h1>
+        <h1>A constellation of voices</h1>
         <p className="intro-copy">
-          Each shape is a question, scattered like stars. Click one to zoom in and see who
-          answered it. Click a person's point of light to read their answer — then travel to
-          the next answer in this topic, or follow their story to the next question. Drag to
-          pan, pinch or use the +/− buttons to zoom.
+          On July 21, 2026, Substack released an AI Detection feature with Pangram. Their
+          reason was to "catch AI slop." Many of us who work with AI and build with AI don't
+          agree with that premise. We also have many different reactions and perspectives. So
+          we gathered as a community to share them here.
         </p>
+        <p className="intro-instructions">
+          Click on a hub to zoom into a given question. Click on a node to see a specific
+          writer's response. You can read responses by question or by writer.
+        </p>
+        <a className="list-view-link" href="?list">Prefer a plain list? View it here →</a>
         {(focusedHubId || cameraIsMoved) && (
           <button className="reset-btn" onClick={handleBackgroundClick}>
             ← Back to full sky

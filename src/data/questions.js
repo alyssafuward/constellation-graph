@@ -1,27 +1,26 @@
 export const QUESTIONS = [
   {
     id: "q1", label: "Who they are", shape: "star", color: "#E0B23C",
-    question: "Please provide a brief 1-2 sentence description of yourself that you feel comfortable sharing in a bio. Feel free to include your publication.",
   },
   {
     id: "q2", label: "First reaction", shape: "square",
     question: "What are your thoughts on the AI detection feature on Substack?",
   },
   {
-    id: "q3", label: "The worry", shape: "triangle",
-    question: "What concerns you most about it?",
+    id: "q3", label: "Concerns", shape: "triangle",
+    question: "What concerns you most about the AI detection feature?",
   },
   {
     id: "q4", label: "Mixed feelings", shape: "diamond",
-    question: "What part of this do you have mixed feelings about, and why?",
+    question: "What part of this do you have mixed feelings about, and why? As human beings, our feelings don't exist in tiny boxes.",
   },
   {
     id: "q5", label: "On transparency", shape: "pentagon",
-    question: "What do you think could be helpful about transparency around AI use?",
+    question: "What do you think could be helpful about transparency around AI use? This question isn't about should we have an AI Detection tool. It's about -- what could it look like to be open about AI use in a different way?",
   },
   {
     id: "q6", label: "Worst case", shape: "hexagon",
-    question: "What's the worst thing you think could happen — and what would you actually do if it did?",
+    question: "What's the worst thing you think could happen — and what would you actually do if it did? This question is a way to tap into the idea that, as humans, we are afraid of the worst thing that could happen. But if it were to happen, we are able to face it. So I was curious how that would show up for others.",
   },
   {
     id: "q7", label: "What changes", shape: "circle",

@@ -1,21 +1,63 @@
 export const VIEW_W = 1600;
 export const VIEW_H = 700;
 
-// Spread across a wide canvas (matching a typical wide-desktop window) instead of the
-// original square-ish layout, so the constellation itself fills a wide frame instead of
-// leaving empty gutters that would otherwise need to be letterboxed away.
+// Design-space hub positions (roughly a 16:9-ish layout). These get stretched per-axis at
+// render time to match whatever shape the actual frame is — see stretchPositions below —
+// so the constellation always fills the frame with no wasted margin on either axis,
+// regardless of window shape, without distorting the shapes themselves.
 export const HUB_POSITIONS = [
-  { x: 220, y: 190 },
-  { x: 560, y: 165 },
-  { x: 900, y: 205 },
-  { x: 1300, y: 175 },
-  { x: 150, y: 380 },
-  { x: 540, y: 355 },
-  { x: 890, y: 400 },
-  { x: 1260, y: 360 },
-  { x: 360, y: 545 },
-  { x: 1000, y: 540 },
+  { x: 177.8, y: 15.5 },
+  { x: 658.5, y: 84.3 },
+  { x: 1059.4, y: 8.6 },
+  { x: 1411.5, y: 132.1 },
+  { x: 178.2, y: 299.2 },
+  { x: 548.9, y: 373.2 },
+  { x: 912.1, y: 513.3 },
+  { x: 1194, y: 265.3 },
+  { x: 289.1, y: 613.7 },
+  { x: 1373.8, y: 488 },
 ];
+
+// Stretches positions around their shared center so the resulting bounding box's aspect
+// ratio exactly matches containerRatio — growing only whichever axis is actually needed,
+// leaving the other axis untouched. Shapes are drawn at a fixed size independent of this,
+// so stretching moves hubs apart/together without distorting them.
+export function stretchPositions(positions, containerRatio) {
+  const xs = positions.map((p) => p.x);
+  const ys = positions.map((p) => p.y);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  const centerX = (minX + maxX) / 2;
+  const centerY = (minY + maxY) / 2;
+  const contentRatio = (maxX - minX) / (maxY - minY);
+
+  let scaleX = 1;
+  let scaleY = 1;
+  if (containerRatio > contentRatio) {
+    scaleX = containerRatio / contentRatio;
+  } else {
+    scaleY = contentRatio / containerRatio;
+  }
+
+  return positions.map((p) => ({
+    x: centerX + (p.x - centerX) * scaleX,
+    y: centerY + (p.y - centerY) * scaleY,
+  }));
+}
+
+// The camera box that shows a set of (already-stretched) hub positions plus enough margin
+// for their orbiting satellites (max orbit radius is naturally capped at ~80 units).
+export function computeSafeBox(positions, margin = 90) {
+  const xs = positions.map((p) => p.x);
+  const ys = positions.map((p) => p.y);
+  const minX = Math.min(...xs) - margin;
+  const maxX = Math.max(...xs) + margin;
+  const minY = Math.min(...ys) - margin;
+  const maxY = Math.max(...ys) + margin;
+  return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+}
 
 // distance from each hub to its single nearest neighboring hub, used to keep satellite
 // orbits from creeping into a neighboring hub's territory when hubs are packed close together
