@@ -2,7 +2,6 @@ import { QUESTIONS } from "../data/questions.js";
 import { ALL_PEOPLE } from "../data/people.js";
 import { easeInOutCubic } from "../lib/camera.js";
 import { HubShape } from "./HubShape.jsx";
-import { HubLabel } from "./HubLabel.jsx";
 import { dotShapeFor } from "../lib/dotShapes.js";
 
 export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, onSatelliteClick, hoveredPersonId, setHoveredPersonId, camera, transitioning, travelingPersonId, beadSegment, beadT, svgRef, pinnedPersonId }) {
@@ -80,10 +79,9 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
             onClick={(e) => { e.stopPropagation(); onHubClick(hub); }}
           >
             {isBeacon && !dim && (
-              <circle className="hub-beacon-ring" cx={0} cy={0} r={136} fill="none" stroke="#F0B85A" strokeWidth="2.5" />
+              <circle className="hub-beacon-ring" cx={0} cy={0} r={68} fill="none" stroke="#F0B85A" strokeWidth="2.5" />
             )}
-            <HubShape shape={hub.shape} size={260} fill={hub.color || "#1F6FA8"} stroke="#0F4C77" dim={dim} />
-            <HubLabel hubId={hub.id} label={hub.label} y={-150} opacity={dim ? 0.35 : 1} />
+            <HubShape shape={hub.shape} size={130} dim={dim} />
           </g>
         );
       })}

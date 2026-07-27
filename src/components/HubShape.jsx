@@ -7,42 +7,39 @@ import hexagonImg from "../assets/hubs/hexagon.png";
 import starImg from "../assets/hubs/star.png";
 import crossImg from "../assets/hubs/cross.png";
 import heartImg from "../assets/hubs/heart.png";
+import ellipseImg from "../assets/hubs/ellipse.png";
 
+// each hand-drawn sticker already has its label baked in, and each has its own natural
+// aspect ratio (they're no longer uniform square canvases) — ratio = width / height, so
+// "size" below always maps to the sticker's height and width is derived, never stretched.
 const SHAPE_IMAGES = {
-  square: squareImg,
-  circle: circleImg,
-  triangle: triangleImg,
-  diamond: diamondImg,
-  pentagon: pentagonImg,
-  hexagon: hexagonImg,
-  star: starImg,
-  cross: crossImg,
-  heart: heartImg,
+  star: { href: starImg, ratio: 337 / 324 },
+  square: { href: squareImg, ratio: 247 / 219 },
+  pentagon: { href: pentagonImg, ratio: 323 / 327 },
+  triangle: { href: triangleImg, ratio: 248 / 267 },
+  diamond: { href: diamondImg, ratio: 268 / 268 },
+  cross: { href: crossImg, ratio: 262 / 286 },
+  circle: { href: circleImg, ratio: 264 / 253 },
+  hexagon: { href: hexagonImg, ratio: 290 / 232 },
+  heart: { href: heartImg, ratio: 296 / 245 },
+  ellipse: { href: ellipseImg, ratio: 325 / 212 },
 };
 
-export function HubShape({ shape, size, fill, stroke, dim }) {
-  const s = size;
-  const props = { fill, stroke, strokeWidth: 2, opacity: dim ? 0.35 : 1 };
+export function HubShape({ shape, size, dim }) {
   const img = SHAPE_IMAGES[shape];
-  if (img) {
-    return (
-      <image
-        href={img}
-        x={-s / 2} y={-s / 2} width={s} height={s}
-        opacity={dim ? 0.35 : 1}
-        style={{ imageRendering: "auto" }}
-      />
-    );
-  }
-  switch (shape) {
-    case "cloud":
-      return (
-        <g {...props}>
-          <ellipse cx={-s / 4} cy={0} rx={s / 3.4} ry={s / 4} />
-          <ellipse cx={s / 4} cy={0} rx={s / 3.4} ry={s / 4} />
-          <ellipse cx={0} cy={-s / 8} rx={s / 2.6} ry={s / 3.2} />
-        </g>
-      );
-    default: return <circle cx={0} cy={0} r={s / 2} {...props} />;
-  }
+  if (!img) return <circle cx={0} cy={0} r={size / 2} fill="#1F6FA8" opacity={dim ? 0.35 : 1} />;
+  // fit within a size x size box (like object-fit: contain) so every hub occupies the
+  // same footprint regardless of how wide or tall its own sticker happens to be —
+  // fixing height alone made wide shapes (ellipse, hexagon, heart) balloon outward
+  // and look much bigger than tall ones (cross, triangle, pentagon)
+  const width = img.ratio >= 1 ? size : size * img.ratio;
+  const height = img.ratio >= 1 ? size / img.ratio : size;
+  return (
+    <image
+      href={img.href}
+      x={-width / 2} y={-height / 2} width={width} height={height}
+      opacity={dim ? 0.35 : 1}
+      style={{ imageRendering: "auto" }}
+    />
+  );
 }

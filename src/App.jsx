@@ -8,11 +8,27 @@ import { boxFor, clampCameraBox } from "./lib/camera.js";
 import { Graph } from "./components/Graph.jsx";
 import { Legend } from "./components/Legend.jsx";
 import { ResponsePanel } from "./components/ResponsePanel.jsx";
+import { Landing } from "./components/Landing.jsx";
 
 const HUB_ZOOM_SIZE = 400;
 const NODE_ZOOM_SIZE = 160;
+const LANDING_EXIT_MS = 700;
 
 export default function App() {
+  const [showLanding, setShowLanding] = useState(true);
+  const [landingExiting, setLandingExiting] = useState(false);
+
+  const handleEnterSky = () => {
+    if (landingExiting) return;
+    setLandingExiting(true);
+    setTimeout(() => setShowLanding(false), LANDING_EXIT_MS);
+  };
+
+  const handleBackToLanding = () => {
+    setLandingExiting(false);
+    setShowLanding(true);
+  };
+
   // how the design-space hub layout gets stretched to match the actual frame's shape —
   // updated live by the ResizeObserver below. Initial guess matches HUB_POSITIONS' own
   // rough ratio so there's no visible jump once the real measurement comes in.
@@ -178,6 +194,10 @@ export default function App() {
 
   return (
     <div className="app-root">
+      {showLanding && <Landing exiting={landingExiting} onClick={handleEnterSky} />}
+      <button className="landing-return-btn" onClick={handleBackToLanding}>
+        ← Back outside
+      </button>
       <div className="header-bar">
         <span className="eyebrow">HOW WE HUMAN IN THE FACE OF AI DETECTION</span>
         <h1>A constellation of voices</h1>

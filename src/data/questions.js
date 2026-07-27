@@ -27,11 +27,11 @@ export const QUESTIONS = [
     question: "Is there anything you'd do differently because of the detector or not? Why?",
   },
   {
-    id: "q8", label: "Reading a score", shape: "cross",
+    id: "q8", label: "Reading a score", shape: "ellipse",
     question: "When you see a detector's results (on your own work or someone else's), how do you interpret them? What do they actually mean to you?",
   },
   {
-    id: "q9", label: "Advice", shape: "cloud",
+    id: "q9", label: "Advice", shape: "cross",
     question: "What advice would you give to someone who's writing right now and wants to incorporate AI into their process?",
   },
   {

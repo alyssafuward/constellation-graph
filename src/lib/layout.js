@@ -6,16 +6,16 @@ export const VIEW_H = 700;
 // so the constellation always fills the frame with no wasted margin on either axis,
 // regardless of window shape, without distorting the shapes themselves.
 export const HUB_POSITIONS = [
-  { x: 177.8, y: 15.5 },
-  { x: 658.5, y: 84.3 },
-  { x: 1059.4, y: 8.6 },
-  { x: 1411.5, y: 132.1 },
-  { x: 178.2, y: 299.2 },
-  { x: 548.9, y: 373.2 },
-  { x: 912.1, y: 513.3 },
-  { x: 1194, y: 265.3 },
-  { x: 289.1, y: 613.7 },
-  { x: 1373.8, y: 488 },
+  { x: 232, y: 122 },  // q1 who they are (star)
+  { x: 716, y: 117 },  // q2 first reaction (square)
+  { x: 1040, y: 233 }, // q3 concerns (triangle)
+  { x: 1368, y: 114 }, // q4 mixed feelings (diamond)
+  { x: 264, y: 368 },  // q5 on transparency (pentagon)
+  { x: 704, y: 368 },  // q6 worst case (hexagon)
+  { x: 1368, y: 368 }, // q7 what changes (circle)
+  { x: 344, y: 601 },  // q8 reading a score (ellipse)
+  { x: 884, y: 601 },  // q9 advice (cross)
+  { x: 1368, y: 601 }, // q10 anything else (heart)
 ];
 
 // Stretches positions around their shared center so the resulting bounding box's aspect
