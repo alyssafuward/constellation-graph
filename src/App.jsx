@@ -17,6 +17,7 @@ const LANDING_EXIT_MS = 700;
 export default function App() {
   const [showLanding, setShowLanding] = useState(true);
   const [landingExiting, setLandingExiting] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
 
   const handleEnterSky = () => {
     if (landingExiting) return;
@@ -33,12 +34,16 @@ export default function App() {
   // updated live by the ResizeObserver below. Initial guess matches HUB_POSITIONS' own
   // rough ratio so there's no visible jump once the real measurement comes in.
   const [containerRatio, setContainerRatio] = useState(1.78);
+  const [hasMeasured, setHasMeasured] = useState(false);
   const { hubs: baseHubs, satellites: baseSatellites, safeBox } = useGraph(containerRatio);
   const { camera, transitioning, flyTo, flyVia, reset, cancelFlight, setCameraDirect, cameraRef } = useCamera();
 
   const svgRef = useRef(null);
   const frameRef = useRef(null);
   const isInteractingRef = usePanZoom(svgRef, camera, cameraRef, setCameraDirect, cancelFlight);
+  // the star (q1) is the featured "main window" hub — the resting camera opens on it
+  // instead of the full spread, until the visitor explicitly zooms out to the full sky
+  const hasOpenedOnStarRef = useRef(false);
 
   const [activeKey, setActiveKey] = useState(null);
   const [focusedHubId, setFocusedHubId] = useState(null);
@@ -66,6 +71,7 @@ export default function App() {
       const { width, height } = entries[0].contentRect;
       if (width === 0 || height === 0) return;
       setContainerRatio(width / height);
+      setHasMeasured(true);
     });
     observer.observe(el);
     return () => observer.disconnect();
@@ -73,12 +79,22 @@ export default function App() {
 
   // once the layout re-stretches to match a new ratio, snap the resting camera to match
   // too — but only while at rest, never mid-zoom/mid-flight, and never while the user has
-  // an active pointer down (manually panning/pinching), so it can't fight a live drag
+  // an active pointer down (manually panning/pinching), so it can't fight a live drag.
+  // The very first snap (once real measurements are in) opens on the star instead of the
+  // full sky; every snap after that (e.g. a later window resize while nothing's focused)
+  // goes to the full safeBox as before.
   useEffect(() => {
     const atRest = !activeKey && !focusedHubId && !transitioning && !isInteractingRef.current;
-    if (atRest) setCameraDirect(safeBox);
+    if (!atRest || !hasMeasured) return;
+    if (!hasOpenedOnStarRef.current) {
+      hasOpenedOnStarRef.current = true;
+      const star = hubs.find((h) => h.id === QUESTIONS[0].id);
+      setCameraDirect(star ? boxFor(star.x, star.y, HUB_ZOOM_SIZE) : safeBox);
+    } else {
+      setCameraDirect(safeBox);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [safeBox]);
+  }, [safeBox, hasMeasured]);
 
   const cameraIsMoved =
     Math.abs(camera.w - safeBox.w) > 4 ||
@@ -199,18 +215,29 @@ export default function App() {
         ← Back outside
       </button>
       <div className="header-bar">
-        <span className="eyebrow">HOW WE HUMAN IN THE FACE OF AI DETECTION</span>
-        <h1>A constellation of voices</h1>
-        <p className="intro-copy">
-          On July 21, 2026, Substack released an AI Detection feature with Pangram. Their
-          reason was to "catch AI slop." Many of us who work with AI and build with AI don't
-          agree with that premise. We also have many different reactions and perspectives. So
-          we gathered as a community to share them here.
+        <span className="eyebrow">A constellation of voices</span>
+        <h1>How we human in the face of AI detection</h1>
+        <span className="brought-by">Brought to you by the HART Studio</span>
+        <p className="intro-oneliner">
+          How our community responded to Substack's new AI Detection feature — in our own words.
         </p>
-        <p className="intro-instructions">
-          Click on a hub to zoom into a given question. Click on a node to see a specific
-          writer's response. You can read responses by question or by writer.
-        </p>
+        <button className="about-toggle" onClick={() => setShowAbout((v) => !v)} aria-expanded={showAbout}>
+          {showAbout ? "Hide details ↑" : "ⓘ About this project"}
+        </button>
+        {showAbout && (
+          <>
+            <p className="intro-copy">
+              On July 21, 2026, Substack released an AI Detection feature with Pangram. Their
+              reason was to "catch AI slop." Many of us who work with AI and build with AI don't
+              agree with that premise. We also have many different reactions and perspectives. So
+              we gathered as a community to share them here.
+            </p>
+            <p className="intro-instructions">
+              Click on a hub to zoom into a given question. Click on a node to see a specific
+              writer's response. You can read responses by question or by writer.
+            </p>
+          </>
+        )}
         <a className="list-view-link" href="?list">Prefer a plain list? View it here →</a>
         {(focusedHubId || cameraIsMoved) && (
           <button className="reset-btn" onClick={handleBackgroundClick}>
@@ -252,6 +279,13 @@ export default function App() {
         onStayInTopic={handleStayInTopic}
         onFollowStory={handleFollowStory}
       />
+
+      <footer className="join-footer">
+        Want to join the HART Studio?{" "}
+        <a href="https://thehartstudio.substack.com" target="_blank" rel="noopener noreferrer">
+          Click here for more info
+        </a>
+      </footer>
     </div>
   );
 }

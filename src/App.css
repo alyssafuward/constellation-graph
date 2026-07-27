@@ -23,6 +23,22 @@ html, body, #root {
   overflow: hidden;
 }
 
+.join-footer {
+  flex: 0 0 auto;
+  text-align: center;
+  font-size: 12px;
+  color: #55606B;
+  padding-top: 8px;
+  margin-top: 8px;
+}
+
+.join-footer a {
+  color: #1F6FA8;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .landing-overlay {
   position: fixed;
   inset: 0;
@@ -100,12 +116,12 @@ html, body, #root {
 .header-bar {
   flex: 0 0 auto;
   max-width: 760px;
-  margin: 0 auto 10px;
+  margin: 0 auto 6px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .eyebrow {
@@ -119,27 +135,59 @@ html, body, #root {
 .header-bar h1 {
   font-family: 'DM Serif Display', serif;
   font-weight: 400;
-  font-size: 22px;
+  font-size: 21px;
   margin: 0;
 }
 
-.intro-copy {
-  margin: 0 auto;
+.brought-by {
+  display: block;
+  font-size: 11px;
+  color: #55606B;
+  margin-bottom: 2px;
+}
+
+/* always-visible one-line summary — readable at normal size since it's just one line;
+   the full paragraph below is what's tucked behind the toggle */
+.intro-oneliner {
+  margin: 4px auto 0;
   color: #3D4A54;
-  font-size: 15.5px;
+  font-size: 14px;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.about-toggle {
+  margin: 4px auto 0;
+  background: none;
+  border: none;
+  color: #1F6FA8;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+.about-toggle:hover { text-decoration: underline; }
+
+/* de-emphasized on purpose — the constellation itself is the main event, so this copy
+   is small enough to skip past but still there for anyone who wants the context */
+.intro-copy {
+  margin: 6px auto 0;
+  color: #6B7680;
+  font-size: 12.5px;
   max-width: 560px;
-  line-height: 1.55;
+  line-height: 1.45;
 }
 
 .intro-instructions {
-  margin: 6px auto 0;
-  padding-top: 10px;
+  margin: 4px auto 0;
+  padding-top: 4px;
   border-top: 1px solid #D8ECF8;
-  color: #55606B;
-  font-size: 13px;
+  color: #7A848D;
+  font-size: 10.5px;
   font-style: italic;
   max-width: 480px;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .list-view-link {

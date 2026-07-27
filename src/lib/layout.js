@@ -73,20 +73,17 @@ export function nearestNeighborDistances(positions) {
   });
 }
 
-// The hub label sits above the shape (straight up, angle -90°). Keep satellites out of a
-// wedge centered there so they never sit behind/through the label text.
-const LABEL_ANGLE = -Math.PI / 2;
-const LABEL_EXCLUDE_HALF_WIDTH = 0.87; // ~50°, so the excluded wedge spans ~100° total
-
 export function satelliteOrbitParams(hub, i, total, maxOrbit = Infinity) {
   const naturalOrbit = 58 + Math.min(total, 7) * 3.2;
   // cap well inside the gap to the nearest hub, so satellites stay clearly grouped
   // with their own hub even when two hubs sit close together
   const orbit = Math.min(naturalOrbit, maxOrbit * 0.35);
 
+  // hub labels are baked into the sticker art now (no separate text sitting above the
+  // shape), so satellites are free to spread all the way around the full circle
   const n = Math.max(total, 1);
-  const allowedStart = LABEL_ANGLE + LABEL_EXCLUDE_HALF_WIDTH;
-  const allowedSweep = 2 * Math.PI - 2 * LABEL_EXCLUDE_HALF_WIDTH;
+  const allowedStart = -Math.PI / 2;
+  const allowedSweep = 2 * Math.PI;
   const spacing = allowedSweep / n;
   // each satellite gets its own fixed slot spread across the allowed arc, then wobbles
   // gently in place — never sweeping the full circle, so it can never drift back up
