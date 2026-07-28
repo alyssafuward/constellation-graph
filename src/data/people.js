@@ -58,6 +58,21 @@ export const AUTHORS = [
     },
   },
   {
+    id: "kim", name: "Kim Doyal", handle: "@kimdoyal", color: "#C0504D",
+    answers: {
+      q1: ["I build AI-powered tools, apps, and systems, and after 18 years online, I can say with a straight face that this is the opportunity of our lifetime. I share the whole build on Substack, fueled by caffeine and stubborn optimism. [kimdoyal.substack.com](https://kimdoyal.substack.com)"],
+      q2: ["I think it's a poor excuse for a feature and a self-righteous one at that. There's more to this story than meets the eye, and I hope the countries that have laws against what they did (how they rolled this out) hold them accountable."],
+      q3: ["We know there's already a bias with AI, not to mention there's enough data that shows these AI detectors aren't valid tools for detecting human writing/AI writing. AI is an incredible tool and has helped so many people feel more comfortable writing. Publishing online is hard enough without worrying about strangers playing judge and jury."],
+      q4: ["I don't have any mixed feelings about it. We're all adults and should be able to choose what we do and don't want to read, regardless of who wrote it or how they wrote it. This feels more like surveillance than anything else."],
+      q5: ["My first thought is: do we list every tool we use with everything else? Do we expect people to disclose their use of Grammarly? I think if we're using AI to create a human-like likeness (ex: video avatars), it might make sense, but the bigger question is what is the goal with transparency? I use Gemini for my character generation and leave the Gemini icon in the bottom right corner, mainly because I truly believe people don't care. We know movies are made with CGI, but we don't expect a disclaimer that it was used."],
+      q6: ["At the risk of coming off dismissive, Substack is just another platform. If Substack decided to ban me/punish my publication via the algorithm, I'd just focus elsewhere. I publish on my own website first and make sure my subscribers are sent via an automation into my email service provider. I stopped trusting the platforms a long time ago, lol."],
+      q7: ["Nope, not at all. I know who I am, how I move through the world, and what my intentions are. I have zero extra energy to put into things I can't control."],
+      q8: ["I haven't used it, but my reaction would be \"don't care.\" haha…"],
+      q9: ["Do what works for YOU. Go deeper, use AI to learn, find patterns, and help you master your craft. Life is hard enough; ignore the noise."],
+      q10: ["Well, to pull from Harry Potter and The Prisoner of Azkaban, when the students are learning how to convert something they're afraid of into something comical (the Boggart)... they use one word: \"Ridiculous!\""],
+    },
+  },
+  {
     id: "lee", name: "Lee Drozak", handle: "@leedrozak", color: "#6C8DB8",
     answers: {
       q1: ["I've been through it all: analog to dialup, pagers to smartphones and wifi to AI. My first foray included remote working from the desk in my basement tethered to a wall. And now look at what we have before us. I feel like we are living the real life version of the Jetsons. Which is why my Substack [DigiNav Compass Signal](https://diginavcompass.news/) is about clarity before the technology, because tech (and AI) are tools to make those decisions move forward."],
@@ -110,7 +125,7 @@ export const AUTHORS = [
       q7: ["I'm using humor to satirize what is happening. In many notes I am posting AI disclosure statements in the most absurd ways."],
       q8: ["I won't use it. I have zero interest. I will be disabling my ratings for all my notes and posts."],
       q9: ["Don't use AI to a degree that you never read your own notes and posts. You are the problem. Take accountability and ownership for what you post. You can use AI for every word, but the moment you take a shortcut and don't read it, is the moment when you need to reassess what you are actually doing here."],
-      q10: ["I am on a self improvement quest to learn how to better engage with people online. I subscribe to a diverse diet of perspectives from anti-AI to doomers to utopians to tool builders (like HART). I started a dialogue with one of the bigger cheerleaders on the anti-AI side with snark and anger. She had no reason to engage with me, but she did, and that speaks to her character even though we very much disagree."],
+      q10: ["I am on a self improvement quest to learn how to better engage with people online. I subscribe to a diverse diet of perspectives from anti-AI to doomers to utopians to tool builders (like HART). I am happy to share a dialogue I had with one of the bigger cheerleaders on the anti-AI side, who has a big following and platform. I am grateful for the exchange and kindness she extended to me. I started the dialogue with snark and anger. She had no reason to engage with me, but she did, and that speaks to her character even though I very much disagree with her and she with me.", "Using my ADHD superpowers to nerd out and do a deep dive on Substack's terms: [EU/UK fight back](https://substack.com/@outsidefeet/note/c-300664597?r=6nyxms&utm_source=notes-share-action&utm_medium=web), and [Pangram is not using scans to train AI](https://substack.com/@outsidefeet/note/c-300265141?r=6nyxms&utm_source=notes-share-action&utm_medium=web)."],
     },
   },
 ];

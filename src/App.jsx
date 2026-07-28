@@ -17,6 +17,7 @@ const LANDING_EXIT_MS = 700;
 export default function App() {
   const [showLanding, setShowLanding] = useState(true);
   const [landingExiting, setLandingExiting] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
 
   const handleEnterSky = () => {
     if (landingExiting) return;
@@ -27,6 +28,14 @@ export default function App() {
   const handleBackToLanding = () => {
     setLandingExiting(false);
     setShowLanding(true);
+    // reset the graph back to the full sky, so stepping in again always starts fresh
+    // instead of picking up wherever the camera was left
+    setActiveKey(null);
+    setFocusedHubId(null);
+    setPinnedPersonId(null);
+    setHoveredPersonId(null);
+    cancelFlight();
+    setCameraDirect(safeBox);
   };
 
   // how the design-space hub layout gets stretched to match the actual frame's shape —
@@ -199,18 +208,29 @@ export default function App() {
         ← Back outside
       </button>
       <div className="header-bar">
-        <span className="eyebrow">HOW WE HUMAN IN THE FACE OF AI DETECTION</span>
-        <h1>A constellation of voices</h1>
-        <p className="intro-copy">
-          On July 21, 2026, Substack released an AI Detection feature with Pangram. Their
-          reason was to "catch AI slop." Many of us who work with AI and build with AI don't
-          agree with that premise. We also have many different reactions and perspectives. So
-          we gathered as a community to share them here.
+        <span className="eyebrow">A constellation of voices</span>
+        <h1>How we human in the face of AI detection</h1>
+        <span className="brought-by">Brought to you by the HART Studio</span>
+        <p className="intro-oneliner">
+          How our community responded to Substack's new AI Detection feature — in our own words.
         </p>
-        <p className="intro-instructions">
-          Click on a hub to zoom into a given question. Click on a node to see a specific
-          writer's response. You can read responses by question or by writer.
-        </p>
+        <button className="about-toggle" onClick={() => setShowAbout((v) => !v)} aria-expanded={showAbout}>
+          {showAbout ? "Hide details ↑" : "ⓘ About this project"}
+        </button>
+        {showAbout && (
+          <>
+            <p className="intro-copy">
+              On July 21, 2026, Substack released an AI Detection feature with Pangram. Their
+              reason was to "catch AI slop." Many of us who work with AI and build with AI don't
+              agree with that premise. We also have many different reactions and perspectives. So
+              we gathered as a community to share them here.
+            </p>
+            <p className="intro-instructions">
+              Click on a hub to zoom into a given question. Click on a node to see a specific
+              writer's response. You can read responses by question or by writer.
+            </p>
+          </>
+        )}
         <a className="list-view-link" href="?list">Prefer a plain list? View it here →</a>
         {(focusedHubId || cameraIsMoved) && (
           <button className="reset-btn" onClick={handleBackgroundClick}>
@@ -252,6 +272,13 @@ export default function App() {
         onStayInTopic={handleStayInTopic}
         onFollowStory={handleFollowStory}
       />
+
+      <footer className="join-footer">
+        Want to join the HART Studio?{" "}
+        <a href="https://thehartstudio.substack.com" target="_blank" rel="noopener noreferrer">
+          Click here for more info
+        </a>
+      </footer>
     </div>
   );
 }

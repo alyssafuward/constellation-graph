@@ -120,7 +120,7 @@ export default function LayoutEditor() {
                 className="hub"
                 onPointerDown={handlePointerDown(i)}
               >
-                <HubShape shape={hub.shape} size={46} fill={hub.color || "#1F6FA8"} stroke="#0F4C77" />
+                <HubShape hubId={hub.id} size={46} />
                 <text y={-36} textAnchor="middle" className="hub-label">{hub.label}</text>
                 <text y={44} textAnchor="middle" className="hub-coords">{Math.round(hub.x)}, {Math.round(hub.y)}</text>
               </g>
