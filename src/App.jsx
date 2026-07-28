@@ -28,22 +28,26 @@ export default function App() {
   const handleBackToLanding = () => {
     setLandingExiting(false);
     setShowLanding(true);
+    // reset the graph back to the full sky, so stepping in again always starts fresh
+    // instead of picking up wherever the camera was left
+    setActiveKey(null);
+    setFocusedHubId(null);
+    setPinnedPersonId(null);
+    setHoveredPersonId(null);
+    cancelFlight();
+    setCameraDirect(safeBox);
   };
 
   // how the design-space hub layout gets stretched to match the actual frame's shape —
   // updated live by the ResizeObserver below. Initial guess matches HUB_POSITIONS' own
   // rough ratio so there's no visible jump once the real measurement comes in.
   const [containerRatio, setContainerRatio] = useState(1.78);
-  const [hasMeasured, setHasMeasured] = useState(false);
   const { hubs: baseHubs, satellites: baseSatellites, safeBox } = useGraph(containerRatio);
   const { camera, transitioning, flyTo, flyVia, reset, cancelFlight, setCameraDirect, cameraRef } = useCamera();
 
   const svgRef = useRef(null);
   const frameRef = useRef(null);
   const isInteractingRef = usePanZoom(svgRef, camera, cameraRef, setCameraDirect, cancelFlight);
-  // the star (q1) is the featured "main window" hub — the resting camera opens on it
-  // instead of the full spread, until the visitor explicitly zooms out to the full sky
-  const hasOpenedOnStarRef = useRef(false);
 
   const [activeKey, setActiveKey] = useState(null);
   const [focusedHubId, setFocusedHubId] = useState(null);
@@ -71,7 +75,6 @@ export default function App() {
       const { width, height } = entries[0].contentRect;
       if (width === 0 || height === 0) return;
       setContainerRatio(width / height);
-      setHasMeasured(true);
     });
     observer.observe(el);
     return () => observer.disconnect();
@@ -79,22 +82,12 @@ export default function App() {
 
   // once the layout re-stretches to match a new ratio, snap the resting camera to match
   // too — but only while at rest, never mid-zoom/mid-flight, and never while the user has
-  // an active pointer down (manually panning/pinching), so it can't fight a live drag.
-  // The very first snap (once real measurements are in) opens on the star instead of the
-  // full sky; every snap after that (e.g. a later window resize while nothing's focused)
-  // goes to the full safeBox as before.
+  // an active pointer down (manually panning/pinching), so it can't fight a live drag
   useEffect(() => {
     const atRest = !activeKey && !focusedHubId && !transitioning && !isInteractingRef.current;
-    if (!atRest || !hasMeasured) return;
-    if (!hasOpenedOnStarRef.current) {
-      hasOpenedOnStarRef.current = true;
-      const star = hubs.find((h) => h.id === QUESTIONS[0].id);
-      setCameraDirect(star ? boxFor(star.x, star.y, HUB_ZOOM_SIZE) : safeBox);
-    } else {
-      setCameraDirect(safeBox);
-    }
+    if (atRest) setCameraDirect(safeBox);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [safeBox, hasMeasured]);
+  }, [safeBox]);
 
   const cameraIsMoved =
     Math.abs(camera.w - safeBox.w) > 4 ||

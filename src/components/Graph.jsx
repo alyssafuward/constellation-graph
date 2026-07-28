@@ -34,14 +34,21 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
         );
       })}
 
-      {/* dotted spokes from hub to its satellites — questions are the loose structure */}
-      {satellites.map((s) => (
-        <line
-          key={`spoke-${s.key}`}
-          x1={s.hub.x} y1={s.hub.y} x2={s.x} y2={s.y}
-          stroke="#7FAAC9" strokeWidth={1.7} strokeDasharray="1.5 4.5"
-        />
-      ))}
+      {/* dotted spokes from hub to its satellites — questions are the loose structure.
+          dimmed along with their hub so a faded-out star doesn't sit under full-strength
+          lines and dots, which read as visually disconnected from it */}
+      {satellites.map((s) => {
+        const dim = focusedHubId && focusedHubId !== s.hubId && !activeSat;
+        return (
+          <line
+            key={`spoke-${s.key}`}
+            x1={s.hub.x} y1={s.hub.y} x2={s.x} y2={s.y}
+            stroke="#7FAAC9" strokeWidth={1.7} strokeDasharray="1.5 4.5"
+            opacity={dim ? 0.35 : 1}
+            style={{ transition: "opacity 0.2s ease" }}
+          />
+        );
+      })}
 
       {/* solid person threads — always visible but faint by default, one per person connecting all their answers in question order */}
       {ALL_PEOPLE.filter((p) => !p.freeform).map((person) => {
@@ -81,7 +88,7 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
             {isBeacon && !dim && (
               <circle className="hub-beacon-ring" cx={0} cy={0} r={68} fill="none" stroke="#F0B85A" strokeWidth="2.5" />
             )}
-            <HubShape shape={hub.shape} size={130} dim={dim} />
+            <HubShape hubId={hub.id} size={130} dim={dim} />
           </g>
         );
       })}

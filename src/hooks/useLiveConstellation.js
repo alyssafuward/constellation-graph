@@ -41,11 +41,12 @@ export function useLiveConstellation(baseHubs, baseSatellites, paused) {
       });
 
       // 2. each satellite wobbles gently around its own fixed slot (see satelliteOrbitParams),
-      // anchored to the hub's CURRENT (drifted) position this frame — never sweeps the full
-      // circle, so it can't drift back up into the excluded label wedge
+      // anchored to the hub's CURRENT (drifted) position this frame. Wobble is 0 at t=0 (no
+      // phase offset), so each hub's ring of nodes always *starts* as a clean equidistant
+      // circle, then drifts gently out of sync per-satellite as elapsed time grows.
       liveSatellitesRef.current = liveSatellitesRef.current.map((s) => {
         const p = s.orbitParams;
-        const wobble = p.wobbleAmplitude * Math.sin(p.phase + p.direction * p.speed * elapsed);
+        const wobble = p.wobbleAmplitude * Math.sin(p.direction * p.speed * elapsed);
         const angle = p.centerAngle + wobble;
         const hubPos = hubPosById.get(s.hubId);
         const x = hubPos.x + p.orbit * Math.cos(angle);
