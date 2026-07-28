@@ -6,16 +6,16 @@ export const VIEW_H = 700;
 // so the constellation always fills the frame with no wasted margin on either axis,
 // regardless of window shape, without distorting the shapes themselves.
 export const HUB_POSITIONS = [
-  { x: 232, y: 122 },  // q1 who they are
-  { x: 716, y: 117 },  // q2 first reaction
-  { x: 1040, y: 233 }, // q3 concerns
-  { x: 1368, y: 114 }, // q4 mixed feelings
-  { x: 264, y: 368 },  // q5 on transparency
-  { x: 704, y: 368 },  // q6 worst case
-  { x: 1368, y: 368 }, // q7 what changes
-  { x: 344, y: 601 },  // q8 reading a score
-  { x: 884, y: 601 },  // q9 advice
-  { x: 1368, y: 601 }, // q10 anything else (heart)
+  { x: 206.7, y: 109.6 }, // q1 who they are
+  { x: 716, y: 117 },     // q2 first reaction
+  { x: 1040, y: 233 },    // q3 concerns
+  { x: 1368, y: 114 },    // q4 mixed feelings
+  { x: 252.4, y: 322.4 }, // q5 on transparency
+  { x: 704, y: 368 },     // q6 worst case
+  { x: 1272.5, y: 360.8 },// q7 what changes
+  { x: 207.4, y: 578.5 }, // q8 reading a score
+  { x: 868.7, y: 571.8 }, // q9 advice
+  { x: 1416.9, y: 562.8 },// q10 anything else (heart)
 ];
 
 // Stretches positions around their shared center so the resulting bounding box's aspect
@@ -85,16 +85,21 @@ export function satelliteOrbitParams(hub, i, total, maxOrbit = Infinity) {
   const allowedStart = -Math.PI / 2;
   const allowedSweep = 2 * Math.PI;
   const spacing = allowedSweep / n;
-  // each satellite gets its own fixed slot spread evenly around the hub, then wobbles
-  // gently in place from there. No phase offset, so every satellite's wobble is exactly 0
-  // at t=0 — the constellation always *starts* as a clean equidistant circle, then drifts
-  // out of lockstep over time via its own direction/speed, same as before.
+  // each satellite gets its own fixed slot spread across the allowed arc, then wobbles
+  // gently in place — never sweeping the full circle, so it can never drift back up
+  // into the excluded wedge no matter how long it runs
   const centerAngle = allowedStart + spacing * (i + 0.5);
   const wobbleAmplitude = Math.min(0.28, spacing * 0.4);
+
+  // vary phase/speed/direction per satellite so they don't wobble in lockstep.
+  // wobbling within a small arc (instead of sweeping the full circle like before) means the
+  // same angular speed now covers far less visual distance per second, so it's boosted here
+  // to land back at roughly the pace satellites moved at before this wobble model.
+  const phase = (hub.x * 0.013 + hub.y * 0.021) % (Math.PI * 2);
   const seed = (hub.x * 7 + hub.y * 13 + i * 29) % 97;
   const direction = seed % 2 === 0 ? 1 : -1;
   const speed = (0.045 + (seed % 11) * 0.006) * 4;
-  return { orbit, centerAngle, wobbleAmplitude, direction, speed };
+  return { orbit, centerAngle, wobbleAmplitude, phase, direction, speed };
 }
 
 // small, slow circular wobble around a hub's base position — same math shape as satellite
@@ -119,11 +124,9 @@ export function positionAtTime(hub, params, elapsedSeconds) {
 }
 
 // satellite position: a fixed slot within the allowed arc (see satelliteOrbitParams),
-// wobbling gently in place rather than sweeping the full circle. At elapsedSeconds = 0
-// this always lands exactly on centerAngle (wobble is 0), so the resting/starting layout
-// is a clean equidistant circle even though it drifts out of sync as time passes.
+// wobbling gently in place rather than sweeping the full circle
 export function satellitePositionAtTime(hub, params, elapsedSeconds) {
-  const wobble = params.wobbleAmplitude * Math.sin(params.direction * params.speed * elapsedSeconds);
+  const wobble = params.wobbleAmplitude * Math.sin(params.phase + params.direction * params.speed * elapsedSeconds);
   const angle = params.centerAngle + wobble;
   return {
     x: hub.x + params.orbit * Math.cos(angle),

@@ -231,12 +231,14 @@ export default function App() {
             </p>
           </>
         )}
-        <a className="list-view-link" href="?list">Prefer a plain list? View it here →</a>
-        {(focusedHubId || cameraIsMoved) && (
-          <button className="reset-btn" onClick={handleBackgroundClick}>
-            ← Back to full sky
-          </button>
-        )}
+        <div className="header-links-row">
+          <a className="list-view-link" href="?list">Prefer a plain list? View it here →</a>
+          {(focusedHubId || cameraIsMoved) && (
+            <button className="reset-btn" onClick={handleBackgroundClick}>
+              ← Back to full sky
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="graph-wrap">

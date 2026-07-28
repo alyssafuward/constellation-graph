@@ -190,6 +190,15 @@ html, body, #root {
   line-height: 1.4;
 }
 
+.header-links-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 4px;
+}
+
 .list-view-link {
   font-size: 12.5px;
   color: #1F6FA8;
@@ -311,7 +320,7 @@ html, body, #root {
 .graph-svg {
   width: 100%;
   height: 100%;
-  background: #FFFFFF;
+  background: #E4F0FA;
   border-radius: 16px;
   border: 1px solid #D8ECF8;
   touch-action: none;
@@ -392,19 +401,23 @@ html, body, #root {
   border: 1px solid #D8ECF8;
   border-radius: 14px;
   padding: 14px 18px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 8px;
 }
 
 .legend-title {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: #55606B;
-  margin-right: 6px;
+  margin-bottom: 8px;
+}
+
+/* flush columns of equal width, so names stack neatly in line with each other instead
+   of wrapping into a ragged row of variable-width pills */
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 2px 4px;
 }
 
 .legend-row {
@@ -415,11 +428,12 @@ html, body, #root {
   color: #1A1A1A;
   background: none;
   border: none;
-  padding: 6px 10px;
-  border-radius: 20px;
+  padding: 6px 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-family: 'DM Sans', sans-serif;
   white-space: nowrap;
+  text-align: left;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
@@ -440,7 +454,8 @@ html, body, #root {
 }
 
 @media (max-width: 720px) {
-  .legend { padding: 12px 14px; gap: 2px 4px; }
+  .legend { padding: 12px 14px; }
+  .legend-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
   .legend-row { padding: 5px 8px; font-size: 12px; }
 }
 
@@ -580,5 +595,27 @@ html, body, #root {
 
 @media (max-width: 480px) {
   .sheet { padding: 24px 18px; }
-  .header-bar h1 { font-size: 22px; }
+}
+
+/* below this width the one-line summary no longer fits on one line — let it wrap instead
+   of silently clipping (app-root hides x-overflow, so a stuck nowrap line just vanishes) */
+@media (max-width: 600px) {
+  .intro-oneliner { white-space: normal; }
+}
+
+@media (max-width: 600px), (max-height: 640px) {
+  /* short/narrow viewports (most phones) can't guarantee the stacked header + graph +
+     legend + footer all fit within 100dvh — fall back to a scrolling page rather than
+     silently clipping content that has nowhere else to go */
+  .app-root { overflow-y: auto; overflow-x: hidden; }
+  .graph-frame { min-height: 260px; }
+
+  .header-bar { margin-bottom: 4px; gap: 1px; }
+  .header-bar h1 { font-size: 18px; }
+  .intro-oneliner { font-size: 13px; }
+
+  /* bigger touch targets — 36px/32px read fine but are under the ~44px comfortable
+     minimum for a finger tap */
+  .zoom-btn { width: 44px; height: 44px; font-size: 20px; }
+  .close-btn { width: 40px; height: 40px; font-size: 16px; }
 }
