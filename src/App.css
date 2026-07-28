@@ -190,6 +190,15 @@ html, body, #root {
   line-height: 1.4;
 }
 
+.header-links-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 4px;
+}
+
 .list-view-link {
   font-size: 12.5px;
   color: #1F6FA8;
@@ -580,5 +589,27 @@ html, body, #root {
 
 @media (max-width: 480px) {
   .sheet { padding: 24px 18px; }
-  .header-bar h1 { font-size: 22px; }
+}
+
+/* below this width the one-line summary no longer fits on one line — let it wrap instead
+   of silently clipping (app-root hides x-overflow, so a stuck nowrap line just vanishes) */
+@media (max-width: 600px) {
+  .intro-oneliner { white-space: normal; }
+}
+
+@media (max-width: 600px), (max-height: 640px) {
+  /* short/narrow viewports (most phones) can't guarantee the stacked header + graph +
+     legend + footer all fit within 100dvh — fall back to a scrolling page rather than
+     silently clipping content that has nowhere else to go */
+  .app-root { overflow-y: auto; overflow-x: hidden; }
+  .graph-frame { min-height: 260px; }
+
+  .header-bar { margin-bottom: 4px; gap: 1px; }
+  .header-bar h1 { font-size: 18px; }
+  .intro-oneliner { font-size: 13px; }
+
+  /* bigger touch targets — 36px/32px read fine but are under the ~44px comfortable
+     minimum for a finger tap */
+  .zoom-btn { width: 44px; height: 44px; font-size: 20px; }
+  .close-btn { width: 40px; height: 40px; font-size: 16px; }
 }
