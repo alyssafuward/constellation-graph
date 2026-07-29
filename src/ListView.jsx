@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { QUESTIONS } from "./data/questions.js";
 import { AUTHORS } from "./data/people.js";
 import { renderLinkedText } from "./lib/text.jsx";
@@ -7,6 +7,11 @@ import { renderLinkedText } from "./lib/text.jsx";
 // no motion, fully usable with a keyboard or screen reader without any special handling.
 export default function ListView() {
   const [expanded, setExpanded] = useState(() => new Set());
+  const [groupBy, setGroupBy] = useState("question");
+
+  // stable key regardless of grouping, so expanded state survives switching between
+  // "by question" and "by person"
+  const keyFor = (personId, qId) => `${personId}__${qId}`;
 
   const toggle = (key) => {
     setExpanded((prev) => {
@@ -16,6 +21,19 @@ export default function ListView() {
       return next;
     });
   };
+
+  const allKeys = useMemo(() => {
+    const keys = [];
+    QUESTIONS.forEach((q) => {
+      AUTHORS.forEach((p) => {
+        if (p.answers[q.id] && p.answers[q.id].length) keys.push(keyFor(p.id, q.id));
+      });
+    });
+    return keys;
+  }, []);
+
+  const allOpen = allKeys.length > 0 && allKeys.every((k) => expanded.has(k));
+  const toggleAll = () => setExpanded(allOpen ? new Set() : new Set(allKeys));
 
   return (
     <div className="app-root list-view">
@@ -30,36 +48,90 @@ export default function ListView() {
       </div>
 
       <div className="list-wrap">
-        {QUESTIONS.map((q) => {
-          const respondents = AUTHORS.filter((p) => p.answers[q.id] && p.answers[q.id].length);
-          if (!respondents.length) return null;
-          return (
-            <section key={q.id} className="list-question">
-              <h2>{q.label}</h2>
-              {q.question && <p className="list-question-text">{q.question}</p>}
-              <ul className="list-respondents">
-                {respondents.map((person) => {
-                  const key = `${q.id}__${person.id}`;
-                  const isOpen = expanded.has(key);
-                  return (
-                    <li key={key}>
-                      <button className="list-toggle" aria-expanded={isOpen} onClick={() => toggle(key)}>
-                        <span className="legend-dot" style={{ background: person.color }} />
-                        {person.name}
-                        <span className="list-caret" aria-hidden="true">{isOpen ? "−" : "+"}</span>
-                      </button>
-                      {isOpen && (
-                        <div className="list-answer">
-                          {person.answers[q.id].map((para, i) => <p key={i}>{renderLinkedText(para)}</p>)}
-                        </div>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          );
-        })}
+        <div className="list-controls">
+          <div className="list-group-toggle" role="group" aria-label="Group by">
+            <button
+              className={groupBy === "question" ? "is-active" : ""}
+              aria-pressed={groupBy === "question"}
+              onClick={() => setGroupBy("question")}
+            >
+              By question
+            </button>
+            <button
+              className={groupBy === "person" ? "is-active" : ""}
+              aria-pressed={groupBy === "person"}
+              onClick={() => setGroupBy("person")}
+            >
+              By person
+            </button>
+          </div>
+          <button className="list-open-all-btn" onClick={toggleAll}>
+            {allOpen ? "Collapse all" : "Open all"}
+          </button>
+        </div>
+
+        {groupBy === "question"
+          ? QUESTIONS.map((q) => {
+              const respondents = AUTHORS.filter((p) => p.answers[q.id] && p.answers[q.id].length);
+              if (!respondents.length) return null;
+              return (
+                <section key={q.id} className="list-question">
+                  <h2>{q.label}</h2>
+                  {q.question && <p className="list-question-text">{q.question}</p>}
+                  <ul className="list-respondents">
+                    {respondents.map((person) => {
+                      const key = keyFor(person.id, q.id);
+                      const isOpen = expanded.has(key);
+                      return (
+                        <li key={key}>
+                          <button className="list-toggle" aria-expanded={isOpen} onClick={() => toggle(key)}>
+                            <span className="legend-dot" style={{ background: person.color }} />
+                            {person.name}
+                            <span className="list-caret" aria-hidden="true">{isOpen ? "−" : "+"}</span>
+                          </button>
+                          {isOpen && (
+                            <div className="list-answer">
+                              {person.answers[q.id].map((para, i) => <p key={i}>{renderLinkedText(para)}</p>)}
+                            </div>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </section>
+              );
+            })
+          : AUTHORS.map((person) => {
+              const answered = QUESTIONS.filter((q) => person.answers[q.id] && person.answers[q.id].length);
+              if (!answered.length) return null;
+              return (
+                <section key={person.id} className="list-question">
+                  <h2>
+                    <span className="legend-dot" style={{ background: person.color }} />
+                    {person.name}
+                  </h2>
+                  <ul className="list-respondents">
+                    {answered.map((q) => {
+                      const key = keyFor(person.id, q.id);
+                      const isOpen = expanded.has(key);
+                      return (
+                        <li key={key}>
+                          <button className="list-toggle" aria-expanded={isOpen} onClick={() => toggle(key)}>
+                            {q.label}
+                            <span className="list-caret" aria-hidden="true">{isOpen ? "−" : "+"}</span>
+                          </button>
+                          {isOpen && (
+                            <div className="list-answer">
+                              {person.answers[q.id].map((para, i) => <p key={i}>{renderLinkedText(para)}</p>)}
+                            </div>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </section>
+              );
+            })}
       </div>
     </div>
   );
