@@ -222,6 +222,54 @@ html, body, #root {
   padding-bottom: 60px;
 }
 
+.list-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.list-group-toggle {
+  display: inline-flex;
+  border: 1px solid #C8DEF0;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.list-group-toggle button {
+  background: #FFFFFF;
+  border: none;
+  color: #1F6FA8;
+  padding: 7px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+}
+
+.list-group-toggle button + button {
+  border-left: 1px solid #C8DEF0;
+}
+
+.list-group-toggle button.is-active {
+  background: #1F6FA8;
+  color: #FFFFFF;
+}
+
+.list-open-all-btn {
+  background: #FFFFFF;
+  border: 1px solid #C8DEF0;
+  color: #1F6FA8;
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+}
+
 .list-question {
   background: #FFFFFF;
   border: 1px solid #D8ECF8;
@@ -231,6 +279,9 @@ html, body, #root {
 }
 
 .list-question h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: 'DM Serif Display', serif;
   font-weight: 400;
   font-size: 19px;
@@ -412,18 +463,24 @@ html, body, #root {
   margin-bottom: 8px;
 }
 
-/* flush columns of equal width, so names stack neatly in line with each other instead
-   of wrapping into a ragged row of variable-width pills */
+/* two even rows (see LEGEND_ROWS in Legend.jsx) instead of one auto-wrapping line */
 .legend-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 2px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.legend-row {
+.legend-line {
+  display: flex;
+  gap: 4px;
+}
+
+.legend-person {
   display: flex;
   align-items: center;
   gap: 7px;
+  flex: 1 1 0;
+  min-width: 0;
   font-size: 12.5px;
   color: #1A1A1A;
   background: none;
@@ -433,15 +490,17 @@ html, body, #root {
   cursor: pointer;
   font-family: 'DM Sans', sans-serif;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   text-align: left;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.legend-row:hover {
+.legend-person:hover {
   background: #F2F8FD;
 }
 
-.legend-row.is-pinned {
+.legend-person.is-pinned {
   background: #F2F8FD;
   font-weight: 700;
 }
@@ -455,8 +514,7 @@ html, body, #root {
 
 @media (max-width: 720px) {
   .legend { padding: 12px 14px; }
-  .legend-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
-  .legend-row { padding: 5px 8px; font-size: 12px; }
+  .legend-person { padding: 5px 6px; font-size: 12px; }
 }
 
 .hub-coords {
