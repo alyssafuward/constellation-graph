@@ -1,10 +1,18 @@
+import { useMemo } from "react";
 import { QUESTIONS } from "../data/questions.js";
 import { ALL_PEOPLE } from "../data/people.js";
 import { easeInOutCubic } from "../lib/camera.js";
 import { HubShape } from "./HubShape.jsx";
 import { dotShapeFor } from "../lib/dotShapes.js";
+import { midSkyStarPositions, sparklePath } from "../lib/backgroundStars.js";
 
 export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, onSatelliteClick, hoveredPersonId, setHoveredPersonId, camera, transitioning, travelingPersonId, beadSegment, beadT, svgRef, pinnedPersonId }) {
+  // Computed once and frozen (see midSkyStarPositions) — hubs drift continuously,
+  // and recomputing this from their live position every frame made the field
+  // reshuffle each frame, which read as blinking.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const midSkyStars = useMemo(() => midSkyStarPositions(hubs, satellites), [hubs.length]);
+
   const threadFor = (personId) => {
     const qOrder = QUESTIONS.map((q) => q.id);
     return satellites
@@ -22,6 +30,18 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
       className={`graph-svg ${transitioning ? "is-panning" : ""}`}
       preserveAspectRatio="xMidYMid meet"
     >
+      {/* a few decorative stars in the open gaps between hub clusters — kept clear of
+          every hub (and its orbiting satellites) by a generous minimum distance */}
+      <g className="mid-sky-stars">
+        {midSkyStars.map((s) =>
+          s.sparkle ? (
+            <path key={s.key} d={sparklePath(s.x, s.y, s.r)} fill="#F2A65A" opacity={0.55} />
+          ) : (
+            <circle key={s.key} cx={s.x} cy={s.y} r={s.r * 0.5} fill="#F2A65A" opacity={0.5} />
+          )
+        )}
+      </g>
+
       {/* constellation connective tissue: faint dotted lines between neighboring hubs */}
       {hubs.map((hub, i) => {
         const next = hubs[(i + 1) % hubs.length];
@@ -29,7 +49,7 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
           <line
             key={`sky-${hub.id}`}
             x1={hub.x} y1={hub.y} x2={next.x} y2={next.y}
-            stroke="#DCE7EF" strokeWidth={1} strokeDasharray="1 5"
+            stroke="#B9CFDD" strokeWidth={1.5} strokeDasharray="1 5"
           />
         );
       })}
@@ -43,7 +63,7 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
           <line
             key={`spoke-${s.key}`}
             x1={s.hub.x} y1={s.hub.y} x2={s.x} y2={s.y}
-            stroke="#7FAAC9" strokeWidth={1.7} strokeDasharray="1.5 4.5"
+            stroke="#5D8FB8" strokeWidth={2.7} strokeDasharray="1.5 4.5"
             opacity={dim ? 0.35 : 1}
             style={{ transition: "opacity 0.2s ease" }}
           />
@@ -64,7 +84,7 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
                   key={`thread-${person.id}-${s.key}`}
                   x1={prev.x} y1={prev.y} x2={s.x} y2={s.y}
                   stroke={person.color}
-                  strokeWidth={isSelected ? 2.6 : 1.3}
+                  strokeWidth={isSelected ? 5.3 : 4.3}
                   opacity={isSelected ? 0.9 : 0.22}
                   style={{ transition: "opacity 0.2s ease, stroke-width 0.2s ease" }}
                 />
