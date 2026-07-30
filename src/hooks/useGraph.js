@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { QUESTIONS } from "../data/questions.js";
 import { AUTHORS } from "../data/people.js";
-import { HUB_POSITIONS, stretchPositions, computeSafeBox, satelliteOrbitParams, satellitePositionAtTime, hubDriftParams, nearestNeighborDistances } from "../lib/layout.js";
+import { HUB_POSITIONS, stretchPositions, computeSafeBox, fitBoxToRatio, satelliteOrbitParams, satellitePositionAtTime, hubDriftParams, nearestNeighborDistances } from "../lib/layout.js";
 
 // containerRatio controls how the design-space HUB_POSITIONS get stretched (see
 // stretchPositions) — passing a new ratio recomputes the whole layout to match it.
@@ -39,7 +39,10 @@ export function useGraph(containerRatio) {
     // bound the actual rendered content (hubs + every satellite's real position), not a
     // theoretical worst-case guess — this stays correct no matter how hubs get arranged,
     // including ones placed close to an edge
-    const safeBox = computeSafeBox([...hubs, ...satellites], 45);
+    const rawSafeBox = computeSafeBox([...hubs, ...satellites], 45);
+    // computeSafeBox's flat margin skews the box's own ratio away from containerRatio;
+    // re-fit it so the camera never letterboxes against the actual frame shape
+    const safeBox = fitBoxToRatio(rawSafeBox, containerRatio);
 
     return { hubs, satellites, safeBox };
   }, [containerRatio]);

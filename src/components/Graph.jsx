@@ -5,13 +5,20 @@ import { easeInOutCubic } from "../lib/camera.js";
 import { HubShape } from "./HubShape.jsx";
 import { dotShapeFor } from "../lib/dotShapes.js";
 import { midSkyStarPositions, sparklePath } from "../lib/backgroundStars.js";
+import { cornerStarPositions } from "../lib/cornerStars.js";
 
 export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, onSatelliteClick, hoveredPersonId, setHoveredPersonId, camera, transitioning, travelingPersonId, beadSegment, beadT, svgRef, pinnedPersonId }) {
-  // Computed once and frozen (see midSkyStarPositions) — hubs drift continuously,
-  // and recomputing this from their live position every frame made the field
-  // reshuffle each frame, which read as blinking.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const midSkyStars = useMemo(() => midSkyStarPositions(hubs, satellites), [hubs.length]);
+  // Hubs drift continuously (small oscillation), so recomputing the star field from
+  // their live position every frame made it reshuffle each frame, which read as
+  // blinking — hence memoizing. But keying that memo on hubs.length (always 10, never
+  // changes) froze it using whatever hub layout existed on the very first render,
+  // before containerRatio finishes settling from its initial guess to the frame's
+  // real measured ratio — so the stars never tracked the real, correctly-stretched
+  // layout at all. Rounding coarsely enough to ignore per-frame drift, but not a
+  // genuine re-stretch (which moves hubs much further), fixes both at once.
+  const layoutKey = hubs.map((h) => `${Math.round(h.x / 80)}:${Math.round(h.y / 80)}`).join(",");
+  const midSkyStars = useMemo(() => midSkyStarPositions(hubs, satellites), [layoutKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  const cornerStars = useMemo(() => cornerStarPositions(hubs), [layoutKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const threadFor = (personId) => {
     const qOrder = QUESTIONS.map((q) => q.id);
@@ -30,8 +37,27 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
       className={`graph-svg ${transitioning ? "is-panning" : ""}`}
       preserveAspectRatio="xMidYMid meet"
     >
-      {/* a few decorative stars in the open gaps between hub clusters — kept clear of
-          every hub (and its orbiting satellites) by a generous minimum distance */}
+      {/* decorative stars — a scattered cluster in each corner of the sky and along
+          each side edge, plus a few more in the open gaps between hub clusters (kept
+          clear of every hub and its orbiting satellites by a generous minimum
+          distance). All in the same data space as the hubs, so they pan/zoom with
+          the rest of the constellation instead of sitting fixed on screen. */}
+      <g className="corner-stars">
+        {cornerStars.map((s) =>
+          s.kind === "dot" ? (
+            <circle key={s.key} cx={s.x} cy={s.y} r={s.size * 0.13} fill="#F2A65A" opacity={s.opacity} />
+          ) : (
+            <path
+              key={s.key}
+              d={sparklePath(s.x, s.y, s.size / 2)}
+              fill={s.kind === "solid" ? "#F2A65A" : "none"}
+              stroke={s.kind === "outline" ? "#F2A65A" : "none"}
+              strokeWidth={s.kind === "outline" ? Math.max(1, s.size * 0.06) : 0}
+              opacity={s.opacity}
+            />
+          )
+        )}
+      </g>
       <g className="mid-sky-stars">
         {midSkyStars.map((s) =>
           s.sparkle ? (
