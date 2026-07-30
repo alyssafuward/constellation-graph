@@ -218,9 +218,21 @@ export default function App() {
         <p className="intro-oneliner">
           How our community responded to Substack's new AI Detection feature — in our own words.
         </p>
-        <button className="about-toggle" onClick={() => setShowAbout((v) => !v)} aria-expanded={showAbout}>
-          {showAbout ? "Hide details ↑" : "ⓘ About this project"}
-        </button>
+        <div className="header-links-row">
+          <button className="about-toggle" onClick={() => setShowAbout((v) => !v)} aria-expanded={showAbout}>
+            {showAbout ? "Hide details ↑" : "ⓘ About this project"}
+          </button>
+          <span className="header-link-divider" aria-hidden="true">|</span>
+          <a className="list-view-link" href="?list">Prefer a plain list? View it here →</a>
+          {(focusedHubId || cameraIsMoved) && (
+            <>
+              <span className="header-link-divider" aria-hidden="true">|</span>
+              <button className="reset-btn" onClick={handleBackgroundClick}>
+                ← Back to full sky
+              </button>
+            </>
+          )}
+        </div>
         {showAbout && (
           <>
             <p className="intro-copy">
@@ -235,14 +247,6 @@ export default function App() {
             </p>
           </>
         )}
-        <div className="header-links-row">
-          <a className="list-view-link" href="?list">Prefer a plain list? View it here →</a>
-          {(focusedHubId || cameraIsMoved) && (
-            <button className="reset-btn" onClick={handleBackgroundClick}>
-              ← Back to full sky
-            </button>
-          )}
-        </div>
       </div>
 
       <div className="graph-wrap">
@@ -280,9 +284,9 @@ export default function App() {
       />
 
       <footer className="join-footer">
-        Want to join the HART Studio?{" "}
+        The HART Studio is where we build with AI together. Want to learn more?{" "}
         <a href="https://thehartstudio.substack.com" target="_blank" rel="noopener noreferrer">
-          Click here for more info
+          Check us out here.
         </a>
       </footer>
     </div>

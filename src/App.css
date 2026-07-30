@@ -157,12 +157,12 @@ html, body, #root {
 }
 
 .about-toggle {
-  margin: 4px auto 0;
+  margin: 0;
   background: none;
   border: none;
   color: #1F6FA8;
   font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
   padding: 2px 4px;
@@ -195,8 +195,13 @@ html, body, #root {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 4px 14px;
+  gap: 4px 10px;
   margin-top: 4px;
+}
+
+.header-link-divider {
+  color: #C8DEF0;
+  font-size: 12.5px;
 }
 
 .list-view-link {

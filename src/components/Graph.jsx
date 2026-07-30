@@ -29,7 +29,7 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
           <line
             key={`sky-${hub.id}`}
             x1={hub.x} y1={hub.y} x2={next.x} y2={next.y}
-            stroke="#DCE7EF" strokeWidth={1} strokeDasharray="1 5"
+            stroke="#B9CFDD" strokeWidth={1.5} strokeDasharray="1 5"
           />
         );
       })}
@@ -43,7 +43,7 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
           <line
             key={`spoke-${s.key}`}
             x1={s.hub.x} y1={s.hub.y} x2={s.x} y2={s.y}
-            stroke="#7FAAC9" strokeWidth={1.7} strokeDasharray="1.5 4.5"
+            stroke="#5D8FB8" strokeWidth={2.2} strokeDasharray="1.5 4.5"
             opacity={dim ? 0.35 : 1}
             style={{ transition: "opacity 0.2s ease" }}
           />
