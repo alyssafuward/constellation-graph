@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { renderQuoteCard } from "../lib/quoteCard.js";
 import { QuoteCardModal } from "./QuoteCardModal.jsx";
 
 // Watches for a text selection inside containerRef, and — if resolvePerson can
@@ -10,7 +9,7 @@ import { QuoteCardModal } from "./QuoteCardModal.jsx";
 // looked up via data attributes) can share this same layer.
 export function QuoteCardSelectionLayer({ containerRef, resolvePerson }) {
   const [popup, setPopup] = useState(null);
-  const [modalUrl, setModalUrl] = useState(null);
+  const [cardData, setCardData] = useState(null);
 
   useEffect(() => {
     const onSelectionChange = () => {
@@ -52,8 +51,7 @@ export function QuoteCardSelectionLayer({ containerRef, resolvePerson }) {
     e.stopPropagation();
     if (!popup) return;
     const { text, person } = popup;
-    const dataUrl = renderQuoteCard({ name: person.name, handle: person.handle, quote: text, accent: person.color });
-    setModalUrl(dataUrl);
+    setCardData({ name: person.name, handle: person.handle, quote: text, accent: person.color });
     setPopup(null);
     window.getSelection().removeAllRanges();
   };
@@ -71,7 +69,7 @@ export function QuoteCardSelectionLayer({ containerRef, resolvePerson }) {
           ✦ Make quote card
         </button>
       )}
-      <QuoteCardModal dataUrl={modalUrl} onClose={() => setModalUrl(null)} />
+      <QuoteCardModal cardData={cardData} onClose={() => setCardData(null)} />
     </>
   );
 }

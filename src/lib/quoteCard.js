@@ -6,6 +6,14 @@ const INK = "#241F1A";
 const KICKER = "HOW WE HUMAN IN THE FACE OF AI DETECTION";
 const SOURCE_LABEL = "A constellation of voices";
 
+// Curated color options offered when making a card — the same roster of colors
+// already used to tell people apart in the graph and legend, so a picked accent
+// always reads as consistent with the rest of the piece.
+export const QUOTE_CARD_SWATCHES = [
+  "#C8697A", "#4E9D9E", "#7A9E7E", "#D9A64E", "#C0504D",
+  "#6C8DB8", "#B57BC9", "#9E7B4E", "#5F8FBF", "#D9834E",
+];
+
 function wrapText(ctx, text, maxWidth) {
   const words = text.split(" ");
   const lines = [];
