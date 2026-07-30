@@ -37,15 +37,16 @@ export function midSkyStarPositions(hubs, satellites = [], {
   minHubDistance = 210,
   minSatelliteDistance = 40,
   minLineDistance = 26,
-  spacing = 95,
-  maxStars = 20,
+  spacing = 55,
+  maxStars = 160,
+  margin = 90,
 } = {}) {
   if (!hubs.length) return [];
 
-  const minX = Math.min(...hubs.map((h) => h.x));
-  const maxX = Math.max(...hubs.map((h) => h.x));
-  const minY = Math.min(...hubs.map((h) => h.y));
-  const maxY = Math.max(...hubs.map((h) => h.y));
+  const minX = Math.min(...hubs.map((h) => h.x)) - margin;
+  const maxX = Math.max(...hubs.map((h) => h.x)) + margin;
+  const minY = Math.min(...hubs.map((h) => h.y)) - margin;
+  const maxY = Math.max(...hubs.map((h) => h.y)) + margin;
 
   // the sky-lines rendered in Graph.jsx connect each hub to the next, in order
   const skyLines = hubs.map((h, i) => {

@@ -9,8 +9,6 @@ import { Graph } from "./components/Graph.jsx";
 import { Legend } from "./components/Legend.jsx";
 import { ResponsePanel } from "./components/ResponsePanel.jsx";
 import { Landing } from "./components/Landing.jsx";
-import { CORNER_STARS } from "./lib/cornerStars.js";
-import { sparklePath } from "./lib/backgroundStars.js";
 
 const HUB_ZOOM_SIZE = 400;
 const NODE_ZOOM_SIZE = 160;
@@ -205,7 +203,12 @@ export default function App() {
       <div className="header-bar">
         <span className="eyebrow">A constellation of voices</span>
         <h1>How we human in the face of AI detection</h1>
-        <span className="brought-by">Brought to you by the HART Studio</span>
+        <span className="brought-by">
+          Brought to you by{" "}
+          <a href="https://thehartstudio.substack.com" target="_blank" rel="noopener noreferrer">
+            the HART Studio
+          </a>
+        </span>
         <p className="intro-oneliner">
           How our community responded to Substack's new AI Detection feature — in our own words.
         </p>
@@ -259,29 +262,6 @@ export default function App() {
             svgRef={svgRef}
             pinnedPersonId={pinnedPersonId}
           />
-          <div className="corner-stars" aria-hidden="true">
-            {CORNER_STARS.map((s, i) => (
-              <svg
-                key={i}
-                className="corner-star"
-                width={s.size}
-                height={s.size}
-                viewBox={`0 0 ${s.size} ${s.size}`}
-                style={{ top: s.top, left: s.left, right: s.right, bottom: s.bottom, opacity: s.opacity }}
-              >
-                {s.kind === "dot" ? (
-                  <circle cx={s.size / 2} cy={s.size / 2} r={s.size * 0.13} fill="#F2A65A" />
-                ) : (
-                  <path
-                    d={sparklePath(s.size / 2, s.size / 2, s.size / 2)}
-                    fill={s.kind === "solid" ? "#F2A65A" : "none"}
-                    stroke={s.kind === "outline" ? "#F2A65A" : "none"}
-                    strokeWidth={s.kind === "outline" ? Math.max(1, s.size * 0.06) : 0}
-                  />
-                )}
-              </svg>
-            ))}
-          </div>
         </div>
         <Legend pinnedPersonId={pinnedPersonId} hoveredPersonId={hoveredPersonId} onPersonClick={handleLegendClick} />
       </div>

@@ -59,6 +59,22 @@ export function computeSafeBox(positions, margin = 90) {
   return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
 }
 
+// Grows a box (around its own center, never shrinks it) so its aspect ratio exactly
+// matches the frame's — a flat margin added in computeSafeBox skews the box's own
+// ratio away from containerRatio, and since the <svg> uses preserveAspectRatio="xMidYMid
+// meet", any mismatch there letterboxes: blank bars on whichever axis the camera box
+// came up short on, cropping how much of the sky (including the background stars) the
+// frame actually shows.
+export function fitBoxToRatio(box, ratio) {
+  const boxRatio = box.w / box.h;
+  if (!ratio || Math.abs(boxRatio - ratio) < 1e-6) return box;
+  const cx = box.x + box.w / 2;
+  const cy = box.y + box.h / 2;
+  const w = boxRatio < ratio ? box.h * ratio : box.w;
+  const h = boxRatio < ratio ? box.h : box.w / ratio;
+  return { x: cx - w / 2, y: cy - h / 2, w, h };
+}
+
 // distance from each hub to its single nearest neighboring hub, used to keep satellite
 // orbits from creeping into a neighboring hub's territory when hubs are packed close together
 export function nearestNeighborDistances(positions) {

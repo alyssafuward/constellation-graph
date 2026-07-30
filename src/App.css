@@ -145,6 +145,12 @@ html, body, #root {
   color: #55606B;
   margin-bottom: 2px;
 }
+.brought-by a {
+  color: #1F6FA8;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 
 /* always-visible one-line summary — readable at normal size since it's just one line;
    the full paragraph below is what's tucked behind the toggle */
@@ -385,21 +391,6 @@ html, body, #root {
 }
 
 
-/* a few fixed decorative stars in each corner of the frame — plain static screen-space
-   accents, not tied to the pannable/zoomable graph underneath, so there's no drift or
-   recomputation to ever flicker */
-.corner-stars {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  border-radius: 16px;
-}
-
-.corner-star {
-  position: absolute;
-  overflow: visible;
-}
 
 
 .graph-svg:active {
