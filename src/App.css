@@ -711,6 +711,44 @@ html, body, #root {
   border-radius: 4px;
   box-shadow: 0 12px 30px rgba(0,0,0,0.28);
 }
+
+.qc-color-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.qc-swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.12);
+  padding: 0;
+  cursor: pointer;
+}
+.qc-swatch.is-selected {
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.12), 0 0 0 3px #1A1A1A;
+}
+.qc-swatch-custom {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+}
+.qc-swatch-custom input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  padding: 0;
+  border: none;
+}
 .qc-modal-hint {
   font-size: 12.5px;
   color: #55606B;
