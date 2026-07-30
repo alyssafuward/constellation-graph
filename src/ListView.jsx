@@ -44,7 +44,7 @@ export default function ListView() {
           A plain, keyboard- and screen-reader-friendly way to browse the same answers as the
           constellation graph. Click a name to read their answer.
         </p>
-        <a className="reset-btn" href=".">← Back to the constellation</a>
+        <a className="reset-btn" href=".?skip-landing">← Back to the constellation</a>
       </div>
 
       <div className="list-wrap">
