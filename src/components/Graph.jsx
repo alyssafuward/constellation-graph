@@ -63,7 +63,7 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
           <line
             key={`spoke-${s.key}`}
             x1={s.hub.x} y1={s.hub.y} x2={s.x} y2={s.y}
-            stroke="#5D8FB8" strokeWidth={4} strokeDasharray="1.5 4.5"
+            stroke="#5D8FB8" strokeWidth={2.7} strokeDasharray="1.5 4.5"
             opacity={dim ? 0.35 : 1}
             style={{ transition: "opacity 0.2s ease" }}
           />
@@ -84,7 +84,7 @@ export function Graph({ satellites, hubs, activeKey, focusedHubId, onHubClick, o
                   key={`thread-${person.id}-${s.key}`}
                   x1={prev.x} y1={prev.y} x2={s.x} y2={s.y}
                   stroke={person.color}
-                  strokeWidth={isSelected ? 8 : 6.5}
+                  strokeWidth={isSelected ? 5.3 : 4.3}
                   opacity={isSelected ? 0.9 : 0.22}
                   style={{ transition: "opacity 0.2s ease, stroke-width 0.2s ease" }}
                 />
