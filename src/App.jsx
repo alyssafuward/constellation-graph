@@ -4,11 +4,13 @@ import { useLiveConstellation } from "./hooks/useLiveConstellation.js";
 import { useCamera } from "./hooks/useCamera.js";
 import { usePanZoom } from "./hooks/usePanZoom.js";
 import { QUESTIONS } from "./data/questions.js";
-import { boxFor, clampCameraBox } from "./lib/camera.js";
+import { boxFor } from "./lib/camera.js";
 import { Graph } from "./components/Graph.jsx";
 import { Legend } from "./components/Legend.jsx";
 import { ResponsePanel } from "./components/ResponsePanel.jsx";
 import { Landing } from "./components/Landing.jsx";
+import { CORNER_STARS } from "./lib/cornerStars.js";
+import { sparklePath } from "./lib/backgroundStars.js";
 
 const HUB_ZOOM_SIZE = 400;
 const NODE_ZOOM_SIZE = 160;
@@ -194,17 +196,6 @@ export default function App() {
     reset(safeBox);
   };
 
-  // manual zoom in/out, scaling around the camera's own current center so it never
-  // needs to re-derive what to center on — the center point simply doesn't move
-  const zoomBy = (factor) => {
-    cancelFlight();
-    const cam = cameraRef.current;
-    const cx = cam.x + cam.w / 2;
-    const cy = cam.y + cam.h / 2;
-    const clamped = clampCameraBox({ ...cam, w: cam.w * factor, h: cam.h * factor });
-    setCameraDirect({ x: cx - clamped.w / 2, y: cy - clamped.h / 2, w: clamped.w, h: clamped.h });
-  };
-
   return (
     <div className="app-root">
       {showLanding && <Landing exiting={landingExiting} onClick={handleEnterSky} />}
@@ -268,9 +259,28 @@ export default function App() {
             svgRef={svgRef}
             pinnedPersonId={pinnedPersonId}
           />
-          <div className="zoom-controls" onClick={(e) => e.stopPropagation()}>
-            <button className="zoom-btn" onClick={() => zoomBy(0.8)} aria-label="Zoom in">+</button>
-            <button className="zoom-btn" onClick={() => zoomBy(1.25)} aria-label="Zoom out">−</button>
+          <div className="corner-stars" aria-hidden="true">
+            {CORNER_STARS.map((s, i) => (
+              <svg
+                key={i}
+                className="corner-star"
+                width={s.size}
+                height={s.size}
+                viewBox={`0 0 ${s.size} ${s.size}`}
+                style={{ top: s.top, left: s.left, right: s.right, bottom: s.bottom, opacity: s.opacity }}
+              >
+                {s.kind === "dot" ? (
+                  <circle cx={s.size / 2} cy={s.size / 2} r={s.size * 0.13} fill="#F2A65A" />
+                ) : (
+                  <path
+                    d={sparklePath(s.size / 2, s.size / 2, s.size / 2)}
+                    fill={s.kind === "solid" ? "#F2A65A" : "none"}
+                    stroke={s.kind === "outline" ? "#F2A65A" : "none"}
+                    strokeWidth={s.kind === "outline" ? Math.max(1, s.size * 0.06) : 0}
+                  />
+                )}
+              </svg>
+            ))}
           </div>
         </div>
         <Legend pinnedPersonId={pinnedPersonId} hoveredPersonId={hoveredPersonId} onPersonClick={handleLegendClick} />

@@ -384,33 +384,23 @@ html, body, #root {
   user-select: none;
 }
 
-.zoom-controls {
+
+/* a few fixed decorative stars in each corner of the frame — plain static screen-space
+   accents, not tied to the pannable/zoomable graph underneath, so there's no drift or
+   recomputation to ever flicker */
+.corner-stars {
   position: absolute;
-  right: 20px;
-  bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  box-shadow: 0 4px 14px rgba(15,76,119,0.18);
-  border-radius: 10px;
+  inset: 0;
+  pointer-events: none;
   overflow: hidden;
+  border-radius: 16px;
 }
 
-.zoom-btn {
-  width: 36px;
-  height: 36px;
-  border: 1px solid #D8ECF8;
-  background: #FFFFFF;
-  color: #1F6FA8;
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1;
-  cursor: pointer;
+.corner-star {
+  position: absolute;
+  overflow: visible;
 }
 
-.zoom-btn:hover {
-  background: #F2F8FD;
-}
 
 .graph-svg:active {
   cursor: grabbing;
@@ -796,6 +786,5 @@ html, body, #root {
 
   /* bigger touch targets — 36px/32px read fine but are under the ~44px comfortable
      minimum for a finger tap */
-  .zoom-btn { width: 44px; height: 44px; font-size: 20px; }
   .close-btn { width: 40px; height: 40px; font-size: 16px; }
 }
