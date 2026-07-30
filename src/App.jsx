@@ -14,8 +14,12 @@ const HUB_ZOOM_SIZE = 400;
 const NODE_ZOOM_SIZE = 160;
 const LANDING_EXIT_MS = 700;
 
+// lets other pages (e.g. list view's "back to constellation" link) skip straight to the
+// graph instead of landing back on the entry splash
+const skipLanding = new URLSearchParams(window.location.search).has("skip-landing");
+
 export default function App() {
-  const [showLanding, setShowLanding] = useState(true);
+  const [showLanding, setShowLanding] = useState(!skipLanding);
   const [landingExiting, setLandingExiting] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
 
