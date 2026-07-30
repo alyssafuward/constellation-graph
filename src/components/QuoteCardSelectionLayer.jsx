@@ -23,8 +23,10 @@ export function QuoteCardSelectionLayer({ containerRef, resolvePerson }) {
       const container = containerRef.current;
       if (!container || !el || !container.contains(el)) { setPopup(null); return; }
 
+      // Just needs to be non-empty — a UTF-16 length check would exclude a selection
+      // like a single emoji (e.g. "🖕" is a surrogate pair, .length === 2)
       const text = sel.toString().trim();
-      if (text.length < 3) { setPopup(null); return; }
+      if (!text) { setPopup(null); return; }
 
       const person = resolvePerson(el);
       if (!person) { setPopup(null); return; }
