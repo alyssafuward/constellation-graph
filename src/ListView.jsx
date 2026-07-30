@@ -1,13 +1,15 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { QUESTIONS } from "./data/questions.js";
 import { AUTHORS } from "./data/people.js";
 import { renderLinkedText } from "./lib/text.jsx";
+import { QuoteCardSelectionLayer } from "./components/QuoteCardSelectionLayer.jsx";
 
 // Plain, semantic alternative to the constellation graph — real headings and buttons,
 // no motion, fully usable with a keyboard or screen reader without any special handling.
 export default function ListView() {
   const [expanded, setExpanded] = useState(() => new Set());
   const [groupBy, setGroupBy] = useState("question");
+  const listRef = useRef(null);
 
   // stable key regardless of grouping, so expanded state survives switching between
   // "by question" and "by person"
@@ -35,6 +37,15 @@ export default function ListView() {
   const allOpen = allKeys.length > 0 && allKeys.every((k) => expanded.has(k));
   const toggleAll = () => setExpanded(allOpen ? new Set() : new Set(allKeys));
 
+  // Several people/answers are on screen at once here (unlike the graph's single-answer
+  // panel), so the selected person is looked up from data attributes on the nearest
+  // .list-answer ancestor rather than being fixed in advance.
+  const resolvePerson = useCallback((el) => {
+    const host = el.closest("[data-quote-name]");
+    if (!host) return null;
+    return { name: host.dataset.quoteName, handle: host.dataset.quoteHandle, color: host.dataset.quoteColor };
+  }, []);
+
   return (
     <div className="app-root list-view">
       <div className="header-bar">
@@ -47,7 +58,9 @@ export default function ListView() {
         <a className="reset-btn" href=".">← Back to the constellation</a>
       </div>
 
-      <div className="list-wrap">
+      <div className="list-wrap" ref={listRef}>
+        <p className="qc-hint">Select any text in an answer below to save it as a shareable quote card.</p>
+
         <div className="list-controls">
           <div className="list-group-toggle" role="group" aria-label="Group by">
             <button
@@ -90,7 +103,12 @@ export default function ListView() {
                             <span className="list-caret" aria-hidden="true">{isOpen ? "−" : "+"}</span>
                           </button>
                           {isOpen && (
-                            <div className="list-answer">
+                            <div
+                              className="list-answer"
+                              data-quote-name={person.name}
+                              data-quote-handle={person.handle}
+                              data-quote-color={person.color}
+                            >
                               {person.answers[q.id].map((para, i) => <p key={i}>{renderLinkedText(para)}</p>)}
                             </div>
                           )}
@@ -121,7 +139,12 @@ export default function ListView() {
                             <span className="list-caret" aria-hidden="true">{isOpen ? "−" : "+"}</span>
                           </button>
                           {isOpen && (
-                            <div className="list-answer">
+                            <div
+                              className="list-answer"
+                              data-quote-name={person.name}
+                              data-quote-handle={person.handle}
+                              data-quote-color={person.color}
+                            >
                               {person.answers[q.id].map((para, i) => <p key={i}>{renderLinkedText(para)}</p>)}
                             </div>
                           )}
@@ -133,6 +156,8 @@ export default function ListView() {
               );
             })}
       </div>
+
+      <QuoteCardSelectionLayer containerRef={listRef} resolvePerson={resolvePerson} />
     </div>
   );
 }

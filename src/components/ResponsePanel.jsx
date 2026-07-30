@@ -1,8 +1,17 @@
+import { useCallback, useRef } from "react";
 import { renderLinkedText } from "../lib/text.jsx";
+import { QuoteCardSelectionLayer } from "./QuoteCardSelectionLayer.jsx";
 
 export function ResponsePanel({ satellite, onClose, onStayInTopic, onFollowStory }) {
+  const bodyRef = useRef(null);
+  const person = satellite?.person;
+  const resolvePerson = useCallback(
+    () => (person ? { name: person.name, handle: person.handle, color: person.color } : null),
+    [person]
+  );
+
   if (!satellite) return null;
-  const { person, hub } = satellite;
+  const { hub } = satellite;
   const paras = person.answers[hub.id] || [];
 
   return (
@@ -17,10 +26,12 @@ export function ResponsePanel({ satellite, onClose, onStayInTopic, onFollowStory
           </div>
         </header>
 
+        <p className="qc-hint">Select any text below to save it as a shareable quote card.</p>
+
         <p className="sheet-qlabel">{hub.label}</p>
         {hub.question && <p className="sheet-question">{hub.question}</p>}
 
-        <div className="sheet-body">
+        <div className="sheet-body" ref={bodyRef}>
           {paras.map((p, i) => <p key={i}>{renderLinkedText(p)}</p>)}
         </div>
 
@@ -33,6 +44,8 @@ export function ResponsePanel({ satellite, onClose, onStayInTopic, onFollowStory
           </button>
         </div>
       </div>
+
+      <QuoteCardSelectionLayer containerRef={bodyRef} resolvePerson={resolvePerson} />
     </div>
   );
 }
